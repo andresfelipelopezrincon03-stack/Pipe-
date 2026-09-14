@@ -27,8 +27,9 @@ Comparte ese enlace con los jueces: todos los que lo abran envían sus tarjetas 
 | `index.html` | Toda la aplicación (HTML, CSS y JS en un solo archivo) |
 | `manifest.webmanifest` | Manifiesto PWA (nombre, colores, iconos) |
 | `sw.js` | Service worker para uso sin conexión |
-| `assets/lobo.svg` | Logo vectorial del lobo |
-| `icons/` | Iconos PNG (512, 192 y apple-touch 180) generados del logo |
+| `assets/lobo.png` | Mascota oficial: lobo boxeador de cuerpo completo (fondo transparente) |
+| `assets/lobo-cabeza.png` | Recorte de la cabeza del lobo, usado en la cabecera y el favicon |
+| `icons/` | Iconos PNG de la app (512, 192 y apple-touch 180) generados de la mascota |
 
 ## Publicar en un hosting propio
 

@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#1b2430">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<link rel="icon" href="assets/lobo.svg" type="image/svg+xml">
+<link rel="icon" href="assets/lobo-cabeza.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap">
 <style>
@@ -85,7 +85,7 @@
   .appbar-in { max-width: 760px; margin: 0 auto; height: 54px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
   .brand { display: flex; align-items: center; gap: 10px; font-family: var(--disp); font-weight: 800; font-size: 22px; text-transform: uppercase; letter-spacing: .03em; min-width: 0; }
   .brand-t { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .lobo { width: 30px; height: 30px; flex: none; }
+  .lobo { width: 34px; height: 34px; flex: none; object-fit: contain; }
   .card { background: var(--surface); border-radius: 10px; box-shadow: var(--shadow); padding: 14px; }
   .meta { display: grid; grid-template-columns: 1fr 110px 150px; gap: 10px; align-items: end; }
   .judge { display: grid; gap: 4px; }
@@ -209,7 +209,7 @@
   /* Mesa de control */
   .mesa { display: grid; gap: 14px; }
   .empty { text-align: center; color: var(--muted); padding: 30px 10px; background: var(--surface); border-radius: 10px; box-shadow: var(--shadow); display: grid; gap: 10px; justify-items: center; }
-  .empty svg { width: 64px; height: 64px; opacity: .5; }
+  .empty img { height: 110px; opacity: .9; }
   .fight { background: var(--surface); border-radius: 10px; box-shadow: var(--shadow); overflow: hidden; }
   .fight-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 14px; padding: 12px 14px; background: var(--surface-2); }
   .fight-head .fn { font-family: var(--disp); font-weight: 800; font-size: 22px; text-transform: uppercase; }
@@ -260,26 +260,10 @@
   @media (prefers-reduced-motion: reduce) { .seg button { transition: none; } }
 </style>
 
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <defs>
-    <g id="lobo-marca">
-      <path fill="#e8ebf1" d="M50 14 L40 20 L26 2 L18 24 L16 40 L26 58 L40 72 L50 90 L60 72 L74 58 L84 40 L82 24 L74 2 L60 20 Z"/>
-      <path fill="#8b95a6" d="M27 9 L35 19 L24 22 Z"/>
-      <path fill="#8b95a6" d="M73 9 L65 19 L76 22 Z"/>
-      <path fill="#b8c0cd" d="M50 50 L39 61 L50 84 L61 61 Z"/>
-      <path fill="#1b2430" d="M50 66 L45 72 L50 79 L55 72 Z"/>
-      <path fill="#c8102e" d="M30 39 L43 43 L34 48 Z"/>
-      <path fill="#c8102e" d="M70 39 L57 43 L66 48 Z"/>
-      <path fill="#5a6578" d="M22 44 L31 55 L26 57 Z"/>
-      <path fill="#5a6578" d="M78 44 L69 55 L74 57 Z"/>
-    </g>
-  </defs>
-</svg>
-
 <header class="appbar">
   <div class="appbar-in">
     <div class="brand">
-      <svg class="lobo" viewBox="0 0 100 100" aria-hidden="true"><use href="#lobo-marca"/></svg>
+      <img class="lobo" src="assets/lobo-cabeza.png" alt="">
       <span class="brand-t" id="appbar-title">Tarjeta de juez</span>
     </div>
     <div class="estado" id="estado">Conectando…</div>
@@ -649,7 +633,7 @@
     $('badge').textContent = tarjetas.length; $('badge').hidden = tarjetas.length === 0;
     const box = $('mesa');
     if (!tarjetas.length) {
-      box.innerHTML = '<div class="empty"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#lobo-marca"/></svg><div>Todavía no ha llegado ninguna tarjeta. Cuando un juez toque "Enviar tarjeta", aparecerá aquí al instante.</div></div>';
+      box.innerHTML = '<div class="empty"><img src="assets/lobo.png" alt=""><div>Todavía no ha llegado ninguna tarjeta. Cuando un juez toque "Enviar tarjeta", aparecerá aquí al instante.</div></div>';
       return;
     }
     box.innerHTML = grupos().map(([k, lista]) => {
@@ -692,7 +676,7 @@
     const est = $('estado');
     if (!db) {
       est.className = 'estado err'; est.textContent = 'Sin conexión';
-      $('mesa').innerHTML = '<div class="empty"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#lobo-marca"/></svg><div>No hay conexión con la base de datos compartida. Abre la página desde claude.ai con la sesión iniciada; la tarjeta sigue funcionando y puedes copiar o compartir el resultado.</div></div>';
+      $('mesa').innerHTML = '<div class="empty"><img src="assets/lobo.png" alt=""><div>No hay conexión con la base de datos compartida. Abre la página desde claude.ai con la sesión iniciada; la tarjeta sigue funcionando y puedes copiar o compartir el resultado.</div></div>';
       return;
     }
     est.className = 'estado ok'; est.textContent = 'En vivo';
