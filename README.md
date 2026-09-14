@@ -2,13 +2,19 @@
 
 Aplicación web profesional para jueces de boxeo aficionado: cada juez califica los asaltos desde su celular y la **mesa de control** recibe todas las tarjetas en vivo. Funciona en **iOS, Android y PC** desde el navegador, sin instalar nada — y también se puede **instalar como app** (PWA) con el logo del lobo.
 
-## Aplicación en línea
+## Aplicación pública (no requiere cuenta de ninguna clase)
 
-La versión en línea con mesa de control compartida en tiempo real está publicada como artefacto de Claude:
+**https://andresfelipelopezrincon03-stack.github.io/Pipe-/**
 
-**https://claude.ai/code/artifact/b124764d-b536-4eaf-9a98-72b5404f98e7**
+Cualquier persona puede abrir ese enlace. Para conectar a los jueces con la mesa de control en vivo se usa un **código de evento**: la mesa genera un código (por ejemplo `LOBO-7K4N`), lo comparte con los jueces, y todos los que escriban el mismo código quedan sincronizados al instante. El canal en vivo usa el servicio abierto [ntfy.sh](https://ntfy.sh); la mesa además guarda copia local de todas las tarjetas recibidas.
 
-Comparte ese enlace con los jueces: todos los que lo abran envían sus tarjetas a la misma mesa de control.
+El sitio se publica automáticamente con GitHub Pages en cada push (`.github/workflows/pages.yml`).
+
+## Versión en claude.ai
+
+También está publicada como artefacto de Claude, con base de datos compartida propia (sin código de evento):
+
+https://claude.ai/code/artifact/b124764d-b536-4eaf-9a98-72b5404f98e7
 
 ## Funciones
 

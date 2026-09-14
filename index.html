@@ -87,6 +87,9 @@
   .brand-t { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .lobo { width: 34px; height: 34px; flex: none; object-fit: contain; }
   .card { background: var(--surface); border-radius: 10px; box-shadow: var(--shadow); padding: 14px; }
+  .evento { border-top: 6px solid var(--rojo); display: grid; gap: 8px; }
+  .evento-row { display: flex; gap: 8px; }
+  .evento-row input { flex: 1; text-transform: uppercase; font-weight: 600; letter-spacing: .06em; }
   .meta { display: grid; grid-template-columns: 1fr 110px 150px; gap: 10px; align-items: end; }
   .judge { display: grid; gap: 4px; }
   @media (max-width: 560px) { .meta { grid-template-columns: 1fr 100px; } .judge.nasaltos { grid-column: 1 / -1; } }
@@ -271,6 +274,15 @@
 </header>
 
 <div class="wrap">
+  <section class="card evento" id="evento-card" hidden>
+    <label class="lbl" for="codigo">Código del evento</label>
+    <div class="evento-row">
+      <input type="text" id="codigo" placeholder="Ej. LOBO-7K4N" autocomplete="off" autocapitalize="characters" spellcheck="false">
+      <button class="btn" type="button" id="gen-codigo">Generar</button>
+    </div>
+    <div class="hint">Comparte este código con todos los jueces y la mesa de control: quienes escriban el mismo código quedan conectados entre sí en vivo.</div>
+  </section>
+
   <div id="pane-juez" class="pane">
   <section class="card meta">
     <div class="judge">
@@ -557,9 +569,83 @@
   const timers = {};
   function toast(m, id = 'toast') { $(id).textContent = m; clearTimeout(timers[id]); timers[id] = setTimeout(() => $(id).textContent = '', 5000); }
 
-  // ---------- Conexión con la mesa de control (base de datos compartida) ----------
-  let db = null, unsub = null, tarjetas = [];
+  // ---------- Conexión con la mesa de control ----------
+  // Dos modos: dentro de claude.ai usa la base de datos compartida del artefacto;
+  // fuera (versión pública, sin cuenta) usa un canal en vivo por código de evento (ntfy.sh).
+  let backend = null, desuscribir = null, tarjetas = [], conexion = 'nulo';
   const fmtHora = ts => new Date(ts).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+
+  function setEstado(cls, txt) { const est = $('estado'); est.className = 'estado' + (cls ? ' ' + cls : ''); est.textContent = txt; }
+  function recibir(lista) { tarjetas = lista; renderMesa(); }
+
+  function backendClaude(db) {
+    return {
+      enviar: t => db.collection('tarjetas').add(t),
+      anular: id => db.collection('tarjetas').doc(id).delete(),
+      escuchar: () => db.collection('tarjetas').orderBy('ts', 'desc').limit(1000).onSnapshot(
+        snap => recibir(snap.docs.map(d => Object.assign({ id: d.id }, d.data()))),
+        () => { setEstado('err', 'Desconectado'); toast('Se perdió la conexión en vivo. Recarga la página.', 'toast-mesa'); }
+      )
+    };
+  }
+
+  function backendEvento(codigo) {
+    const topic = 'tarjeta-lobo-' + codigo.toLowerCase();
+    const urlPub = 'https://ntfy.sh/' + topic;
+    const CK = KEY + ':evento:' + codigo;
+    const docs = new Map(), anuladas = new Set();
+    try {
+      const c = JSON.parse(localStorage.getItem(CK) || 'null');
+      if (c) { (c.t || []).forEach(t => t && t.id && docs.set(t.id, t)); (c.x || []).forEach(id => anuladas.add(id)); }
+    } catch (e) {}
+    function persistir() { try { localStorage.setItem(CK, JSON.stringify({ t: [...docs.values()], x: [...anuladas] })); } catch (e) {} }
+    function emitir() { recibir([...docs.values()].filter(t => !anuladas.has(t.id)).sort((a, b) => (b.ts || 0) - (a.ts || 0))); }
+    function absorber(texto) {
+      let m; try { m = JSON.parse(texto); } catch (e) { return; }
+      if (m && m.tipo === 'anular' && m.id) anuladas.add(m.id);
+      else if (m && m.tipo === 'tarjeta' && m.id) docs.set(m.id, m);
+      else return;
+      persistir(); emitir();
+    }
+    async function publicar(obj) {
+      const res = await fetch(urlPub, { method: 'POST', body: JSON.stringify(obj) });
+      if (!res.ok) throw new Error('ntfy ' + res.status);
+      absorber(JSON.stringify(obj));
+    }
+    return {
+      enviar: t => publicar(Object.assign({ tipo: 'tarjeta', id: (self.crypto && crypto.randomUUID) ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).slice(2) }, t)),
+      anular: id => publicar({ tipo: 'anular', id }),
+      escuchar: () => {
+        emitir();
+        const es = new EventSource('https://ntfy.sh/' + topic + '/sse?since=all');
+        es.onopen = () => setEstado('ok', 'En vivo · ' + codigo);
+        es.onerror = () => setEstado('err', 'Reconectando…');
+        es.onmessage = ev => { try { const d = JSON.parse(ev.data); if (d && typeof d.message === 'string') absorber(d.message); } catch (e) {} };
+        return () => es.close();
+      }
+    };
+  }
+
+  function codigoLimpio() { return $('codigo').value.trim().toUpperCase().replace(/[^A-Z0-9-]/g, ''); }
+  function conectarEvento() {
+    if (desuscribir) { desuscribir(); desuscribir = null; }
+    backend = null; tarjetas = [];
+    const codigo = codigoLimpio();
+    $('codigo').value = codigo;
+    try { localStorage.setItem(KEY + ':codigo', codigo); } catch (e) {}
+    if (!codigo) { setEstado('err', 'Sin código de evento'); renderMesa(); return; }
+    backend = backendEvento(codigo);
+    setEstado('', 'Conectando…');
+    desuscribir = backend.escuchar();
+  }
+  $('codigo').addEventListener('change', conectarEvento);
+  $('gen-codigo').addEventListener('click', () => {
+    const abc = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let s = ''; for (let i = 0; i < 4; i++) s += abc[Math.floor(Math.random() * abc.length)];
+    $('codigo').value = 'LOBO-' + s;
+    conectarEvento();
+    toast('Código creado. Compártelo con los demás jueces y la mesa de control.');
+  });
 
   function tarjetaActual() {
     const m = MODOS[state.modo], n = id => $(id).value.trim();
@@ -585,10 +671,13 @@
   $('enviar').addEventListener('click', async () => {
     const t = tarjetaActual(), err = validar(t);
     if (err) { toast(err); return; }
-    if (!db) { toast('Sin conexión con la mesa de control. Usa "Copiar resultado" y envíalo por otro medio.'); return; }
+    if (!backend) {
+      toast(conexion === 'evento' ? 'Escribe o genera el código del evento (arriba) para conectarte con la mesa de control.' : 'Sin conexión con la mesa de control. Usa "Copiar resultado" y envíalo por otro medio.');
+      return;
+    }
     const b = $('enviar'); b.disabled = true; b.textContent = 'Enviando…';
     try {
-      await db.collection('tarjetas').add(t);
+      await backend.enviar(t);
       toast('Tarjeta enviada a la mesa de control (combate ' + t.combate + ', juez ' + t.juez + ').');
     } catch (e) {
       toast(e && e.code === 'quota_exceeded' ? 'La base de datos está llena: borra tarjetas viejas en la mesa de control.' : 'No se pudo enviar. Revisa la conexión e inténtalo de nuevo.');
@@ -633,7 +722,10 @@
     $('badge').textContent = tarjetas.length; $('badge').hidden = tarjetas.length === 0;
     const box = $('mesa');
     if (!tarjetas.length) {
-      box.innerHTML = '<div class="empty"><img src="assets/lobo.png" alt=""><div>Todavía no ha llegado ninguna tarjeta. Cuando un juez toque "Enviar tarjeta", aparecerá aquí al instante.</div></div>';
+      let msg = 'Todavía no ha llegado ninguna tarjeta. Cuando un juez toque "Enviar tarjeta", aparecerá aquí al instante.';
+      if (conexion === 'evento' && !backend) msg = 'Escribe o genera un código de evento (arriba) y compártelo con todos los jueces: sus tarjetas aparecerán aquí al instante.';
+      if (conexion === 'nulo') msg = 'No hay conexión con la mesa de control compartida. La tarjeta sigue funcionando y puedes copiar o compartir el resultado.';
+      box.innerHTML = '<div class="empty"><img src="assets/lobo.png" alt=""><div>' + msg + '</div></div>';
       return;
     }
     box.innerHTML = grupos().map(([k, lista]) => {
@@ -655,7 +747,8 @@
   $('mesa').addEventListener('click', async e => {
     const b = e.target.closest('button.del'); if (!b) return;
     if (!b.classList.contains('arm')) { b.classList.add('arm'); b.textContent = '¿Borrar?'; setTimeout(() => { b.classList.remove('arm'); b.textContent = '✕'; }, 3000); return; }
-    try { await db.collection('tarjetas').doc(b.dataset.id).delete(); toast('Tarjeta eliminada.', 'toast-mesa'); }
+    if (!backend) { toast('Sin conexión con la mesa de control.', 'toast-mesa'); return; }
+    try { await backend.anular(b.dataset.id); toast('Tarjeta eliminada.', 'toast-mesa'); }
     catch (err) { toast('No se pudo eliminar la tarjeta.', 'toast-mesa'); }
   });
 
@@ -672,22 +765,25 @@
   });
   $('compartir-mesa').addEventListener('click', () => compartir(resumenMesa(), 'toast-mesa'));
 
-  function conectar() {
-    const est = $('estado');
-    if (!db) {
-      est.className = 'estado err'; est.textContent = 'Sin conexión';
-      $('mesa').innerHTML = '<div class="empty"><img src="assets/lobo.png" alt=""><div>No hay conexión con la base de datos compartida. Abre la página desde claude.ai con la sesión iniciada; la tarjeta sigue funcionando y puedes copiar o compartir el resultado.</div></div>';
-      return;
-    }
-    est.className = 'estado ok'; est.textContent = 'En vivo';
-    unsub = db.collection('tarjetas').orderBy('ts', 'desc').limit(1000).onSnapshot(snap => {
-      tarjetas = snap.docs.map(d => Object.assign({ id: d.id }, d.data()));
-      renderMesa();
-    }, err => { est.className = 'estado err'; est.textContent = 'Desconectado'; toast('Se perdió la conexión en vivo. Recarga la página.', 'toast-mesa'); });
-  }
   (async () => {
-    try { db = window.claude && window.claude.use ? await window.claude.use('db') : null; } catch (e) { db = null; }
-    conectar();
+    const enClaude = !!(window.claude && window.claude.use);
+    let db = null;
+    if (enClaude) { try { db = await window.claude.use('db'); } catch (e) { db = null; } }
+    if (db) {
+      conexion = 'claude';
+      backend = backendClaude(db);
+      setEstado('ok', 'En vivo');
+      desuscribir = backend.escuchar();
+    } else if (enClaude) {
+      conexion = 'nulo';
+      setEstado('err', 'Sin conexión');
+      renderMesa();
+    } else {
+      conexion = 'evento';
+      $('evento-card').hidden = false;
+      try { const c = localStorage.getItem(KEY + ':codigo'); if (c) $('codigo').value = c; } catch (e) {}
+      conectarEvento();
+    }
   })();
 
   function save() {
