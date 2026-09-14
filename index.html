@@ -62,6 +62,7 @@
   }
 
   * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
   body {
     margin: 0;
     background: var(--bg);
@@ -144,7 +145,7 @@
   .round { border-top: 1px solid var(--line); }
   .round .name { font-family: var(--disp); font-weight: 700; font-size: 22px; text-transform: uppercase; line-height: 1; }
   .round .name small { display: block; font-family: var(--body); font-weight: 500; font-size: 11px; letter-spacing: .08em; color: var(--muted); text-transform: uppercase; margin-top: 3px; }
-  .seg { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+  .seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
   .seg button {
     font-family: var(--disp); font-weight: 700; font-size: 21px; line-height: 1;
     min-height: 48px; border: 1px solid var(--line); border-radius: 6px;
@@ -260,6 +261,50 @@
     .total .n { font-size: 46px; }
     .totals { gap: 8px; }
   }
+  /* Pie con el logo de la liga */
+  .liga-pie { display: grid; justify-items: center; padding-top: 4px; }
+  .liga-pie img { height: 96px; background: #fff; border-radius: 14px; padding: 8px 14px; box-shadow: var(--shadow); }
+
+  /* Barra superior: salir */
+  .appbar-right { display: flex; align-items: center; gap: 10px; }
+  .salir { font: inherit; font-size: 12px; font-weight: 600; color: rgba(241,240,236,.75); background: transparent; border: 1px solid rgba(241,240,236,.3); border-radius: 6px; padding: 5px 10px; cursor: pointer; white-space: nowrap; }
+  .salir:hover { color: #fff; border-color: #fff; }
+
+  /* Pantalla de acceso */
+  .acceso { position: fixed; inset: 0; z-index: 40; background: radial-gradient(circle at 50% 30%, #232c3b 0%, #141a24 65%, #0e131b 100%); display: grid; place-items: center; padding: 20px; overflow: auto; }
+  .acceso-card { width: 100%; max-width: 420px; background: var(--surface); border-radius: 14px; padding: 22px; display: grid; gap: 14px; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+  .acceso-head { display: grid; justify-items: center; gap: 4px; text-align: center; }
+  .acceso-head img { height: 96px; }
+  .acceso-head .t { font-family: var(--disp); font-weight: 800; font-size: 26px; text-transform: uppercase; letter-spacing: .03em; }
+  .acceso-head .s { font-size: 13px; color: var(--muted); }
+  .acceso .field { display: grid; gap: 4px; }
+  .acceso input[type="password"] { width: 100%; font: inherit; font-size: 16px; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; outline: none; }
+  .acceso input[type="password"]:focus { border-color: var(--focus); box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--focus); }
+  .acceso .err-msg { font-size: 13px; color: var(--rojo); min-height: 1.2em; text-align: center; }
+  .liga-mini { display: grid; justify-items: center; }
+  .liga-mini img { height: 72px; background: #fff; border-radius: 12px; padding: 6px 10px; }
+
+  /* Banner de ganador en la mesa */
+  .ganador { display: flex; align-items: center; gap: 14px; padding: 12px 14px; border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--c) 10%, var(--surface)); }
+  .ganador.rojo { --c: var(--rojo); } .ganador.azul { --c: var(--azul); } .ganador.empate { --c: var(--gold); }
+  .ganador img { height: 78px; flex: none; }
+  .ganador .gt { display: grid; gap: 2px; min-width: 0; }
+  .ganador .l2 { font-size: 11px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
+  .ganador .nom { font-family: var(--disp); font-weight: 800; font-size: clamp(24px, 5vw, 34px); line-height: 1; text-transform: uppercase; color: var(--c); overflow-wrap: anywhere; }
+  .ganador .res { font-size: 13px; color: var(--muted); }
+  .ganador .proj { margin-left: auto; flex: none; }
+
+  /* Proyección a pantalla completa */
+  .proyeccion { position: fixed; inset: 0; z-index: 50; background: radial-gradient(circle at 50% 32%, #232c3b 0%, #141a24 60%, #0e131b 100%); color: #f1f0ec; display: grid; place-items: center; text-align: center; padding: 24px; cursor: pointer; overflow: auto; }
+  .proyeccion .pbox { display: grid; gap: 14px; justify-items: center; }
+  .proyeccion img.plobo { height: min(34vh, 320px); filter: drop-shadow(0 12px 30px rgba(0,0,0,.5)); }
+  .proyeccion .pl { font-family: var(--disp); font-weight: 700; font-size: clamp(16px, 2.5vw, 26px); letter-spacing: .35em; text-transform: uppercase; color: #9aa3b2; }
+  .proyeccion .pn { font-family: var(--disp); font-weight: 800; font-size: clamp(44px, 10vw, 120px); line-height: .95; text-transform: uppercase; text-wrap: balance; }
+  .proyeccion .pn.rojo { color: #ff4d63; } .proyeccion .pn.azul { color: #5a97ff; } .proyeccion .pn.empate { color: #e0b34a; }
+  .proyeccion .pr { font-family: var(--disp); font-weight: 700; font-size: clamp(20px, 4vw, 42px); color: #cfd5de; text-transform: uppercase; }
+  .proyeccion .pliga { margin-top: 10px; height: 84px; background: #fff; border-radius: 14px; padding: 8px 14px; }
+  .proyeccion .pcerrar { font-size: 12px; color: #77808f; letter-spacing: .08em; text-transform: uppercase; }
+
   @media (prefers-reduced-motion: reduce) { .seg button { transition: none; } }
 </style>
 
@@ -269,7 +314,10 @@
       <img class="lobo" src="assets/lobo-cabeza.png" alt="">
       <span class="brand-t" id="appbar-title">Tarjeta de juez</span>
     </div>
-    <div class="estado" id="estado">Conectando…</div>
+    <div class="appbar-right">
+      <div class="estado" id="estado">Conectando…</div>
+      <button class="salir" type="button" id="salir" hidden>Salir</button>
+    </div>
   </div>
 </header>
 
@@ -375,6 +423,50 @@
     <div id="mesa" class="mesa"></div>
     <div class="toast" id="toast-mesa"></div>
   </div>
+
+  <footer class="liga-pie">
+    <img src="assets/liga.png" alt="Liga de Boxeo de Cundinamarca — LIBOXCUND">
+  </footer>
+</div>
+
+<div class="acceso" id="acceso" hidden>
+  <div class="acceso-card">
+    <div class="acceso-head">
+      <img src="assets/lobo.png" alt="">
+      <div class="t">Tarjeta de Juez</div>
+      <div class="s">Liga de Boxeo de Cundinamarca</div>
+    </div>
+    <div class="chips two" id="acceso-rol" role="radiogroup" aria-label="Tipo de acceso">
+      <button type="button" data-rol="juez" aria-pressed="true">Juez invitado</button>
+      <button type="button" data-rol="admin" aria-pressed="false">Mesa de control</button>
+    </div>
+    <div class="field" id="f-codigo-acceso">
+      <label class="lbl" for="codigo-acceso">Código del evento</label>
+      <input type="text" id="codigo-acceso" placeholder="Ej. LOBO-7K4N" autocomplete="off" autocapitalize="characters" spellcheck="false" style="text-transform:uppercase">
+    </div>
+    <div class="field" id="f-usuario" hidden>
+      <label class="lbl" for="usuario">Usuario</label>
+      <input type="text" id="usuario" autocomplete="username">
+    </div>
+    <div class="field" id="f-clave" hidden>
+      <label class="lbl" for="clave">Contraseña</label>
+      <input type="password" id="clave" autocomplete="current-password">
+    </div>
+    <div class="err-msg" id="acceso-err"></div>
+    <button class="btn primary big" type="button" id="entrar">Entrar</button>
+    <div class="liga-mini"><img src="assets/liga.png" alt="LIBOXCUND"></div>
+  </div>
+</div>
+
+<div class="proyeccion" id="proyeccion" hidden role="dialog" aria-label="Resultado del combate">
+  <div class="pbox">
+    <img class="plobo" src="assets/lobo.png" alt="">
+    <div class="pl" id="p-label"></div>
+    <div class="pn" id="p-nombre"></div>
+    <div class="pr" id="p-res"></div>
+    <img class="pliga" src="assets/liga.png" alt="Liga de Boxeo de Cundinamarca">
+    <div class="pcerrar">Toca la pantalla o pulsa ESC para salir</div>
+  </div>
 </div>
 
 <nav class="tabbar" aria-label="Vista">
@@ -391,7 +483,7 @@
 
 <script>
 (function () {
-  const MAXR = 5, SCORES = [7, 8, 9, 10], KEY = 'tarjeta-juez-boxeo';
+  const MAXR = 5, SCORES = [8, 9, 10], KEY = 'tarjeta-juez-boxeo';
   const state = { rounds: 3, r: [null, null, null], a: [null, null, null], modo: 'PTS', gana: null, asalto: null };
   const MODOS = {
     PTS: { nombre: 'Decisión por puntos', corto: 'PTS', asalto: false, hint: '' },
@@ -638,14 +730,32 @@
     setEstado('', 'Conectando…');
     desuscribir = backend.escuchar();
   }
-  $('codigo').addEventListener('change', conectarEvento);
+  $('codigo').addEventListener('change', () => {
+    if (conexion === 'claude') { const c = codigoLimpio(); $('codigo').value = c; if (c) guardarCodigoInvitados(c); }
+    else conectarEvento();
+  });
   $('gen-codigo').addEventListener('click', () => {
     const abc = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     let s = ''; for (let i = 0; i < 4; i++) s += abc[Math.floor(Math.random() * abc.length)];
     $('codigo').value = 'LOBO-' + s;
-    conectarEvento();
-    toast('Código creado. Compártelo con los demás jueces y la mesa de control.');
+    if (conexion === 'claude') guardarCodigoInvitados('LOBO-' + s);
+    else { conectarEvento(); toast('Código creado. Compártelo con los jueces: lo necesitan para entrar.'); }
   });
+
+  // Código de invitados dentro de claude.ai (guardado en la base compartida)
+  let dbRef = null;
+  async function codigoInvitadosClaude() {
+    if (!dbRef) return null;
+    try {
+      const s = await dbRef.doc('config/acceso').get();
+      return s.exists ? String((s.data() || {}).codigo || '').toUpperCase() : null;
+    } catch (e) { return null; }
+  }
+  async function guardarCodigoInvitados(cod) {
+    if (!dbRef) return;
+    try { await dbRef.doc('config/acceso').set({ codigo: cod }); toast('Código de invitados guardado. Compártelo con los jueces.'); }
+    catch (e) { toast('No se pudo guardar el código de invitados.'); }
+  }
 
   function tarjetaActual() {
     const m = MODOS[state.modo], n = id => $(id).value.trim();
@@ -738,13 +848,42 @@
           '<td><span class="pill ' + gcls + '">' + esc(nombreG(t, g)) + '</span></td>' +
           '<td><button type="button" class="del" data-id="' + esc(t.id) + '" aria-label="Eliminar tarjeta">✕</button></td></tr>';
       }).join('');
+      const stop = lista.find(t => t.modo !== 'PTS' && t.ganador && t.ganador !== 'empate');
+      let banner = '';
+      if (cons.txt && (stop || lista.length >= 3)) {
+        const nom = cons.cls === 'empate' ? 'Empate' : (cons.cls === 'rojo' ? (p.rojo.nombre || 'Esquina roja') : (p.azul.nombre || 'Esquina azul'));
+        banner = '<div class="ganador ' + cons.cls + '"><img src="assets/lobo.png" alt="">' +
+          '<div class="gt"><div class="l2">' + (cons.cls === 'empate' ? 'Resultado oficial' : 'Ganador oficial') + '</div>' +
+          '<div class="nom">' + esc(nom) + '</div><div class="res">' + esc(cons.txt) + '</div></div>' +
+          '<button type="button" class="btn proj" data-combate="' + esc(k) + '" data-cls="' + cons.cls + '" data-nombre="' + esc(nom) + '" data-res="' + esc(cons.txt) + '">Proyectar</button></div>';
+      }
       return '<section class="fight"><div class="fight-head"><div class="fn"><small>Combate</small>' + esc(k) + ' <small style="margin-left:8px">' + lista.length + (lista.length === 1 ? ' tarjeta' : ' tarjetas') + '</small></div><div class="cons ' + cons.cls + '">' + esc(cons.txt) + '</div></div>' +
         '<div class="boxers"><div class="bx r">' + esc(p.rojo.nombre || 'Esquina roja') + '<small>' + esc(p.rojo.lugar || '') + '</small></div><div class="vs">VS</div><div class="bx a">' + esc(p.azul.nombre || 'Esquina azul') + '<small>' + esc(p.azul.lugar || '') + '</small></div></div>' +
+        banner +
         '<div class="tw"><table class="tabla"><thead><tr><th>Juez</th><th>Puntaje</th><th>Gana</th><th></th></tr></thead><tbody>' + filas + '</tbody></table></div></section>';
     }).join('');
   }
 
+  function proyectar(d) {
+    $('p-label').textContent = (d.cls === 'empate' ? 'Resultado' : 'Ganador') + ' · Combate ' + d.combate;
+    const n = $('p-nombre');
+    n.textContent = d.nombre;
+    n.className = 'pn ' + d.cls;
+    $('p-res').textContent = d.res;
+    $('proyeccion').hidden = false;
+    try { if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen(); } catch (e) {}
+  }
+  function cerrarProyeccion() {
+    if ($('proyeccion').hidden) return;
+    $('proyeccion').hidden = true;
+    try { if (document.fullscreenElement) document.exitFullscreen(); } catch (e) {}
+  }
+  $('proyeccion').addEventListener('click', cerrarProyeccion);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarProyeccion(); });
+
   $('mesa').addEventListener('click', async e => {
+    const pj = e.target.closest('button.proj');
+    if (pj) { proyectar(pj.dataset); return; }
     const b = e.target.closest('button.del'); if (!b) return;
     if (!b.classList.contains('arm')) { b.classList.add('arm'); b.textContent = '¿Borrar?'; setTimeout(() => { b.classList.remove('arm'); b.textContent = '✕'; }, 3000); return; }
     if (!backend) { toast('Sin conexión con la mesa de control.', 'toast-mesa'); return; }
@@ -765,25 +904,96 @@
   });
   $('compartir-mesa').addEventListener('click', () => compartir(resumenMesa(), 'toast-mesa'));
 
+  // ---------- Acceso: administrador (mesa de control) y jueces invitados ----------
+  const ROL_KEY = KEY + ':rol';
+  const ADMIN_USER = 'pipe';
+  const ADMIN_HASH = 'ec7b5652e828db85ec8842d2258452809706b2e6e8737c621b32740029509aed';
+  let rol = null;
+  try { const r = localStorage.getItem(ROL_KEY); if (r === 'admin' || r === 'juez') rol = r; } catch (e) {}
+
+  async function sha256(s) {
+    const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+    return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('');
+  }
+
+  let rolSel = 'juez';
+  document.querySelectorAll('#acceso-rol button').forEach(b => b.addEventListener('click', () => {
+    rolSel = b.dataset.rol;
+    document.querySelectorAll('#acceso-rol button').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.rol === rolSel)));
+    $('f-codigo-acceso').hidden = rolSel !== 'juez';
+    $('f-usuario').hidden = rolSel !== 'admin';
+    $('f-clave').hidden = rolSel !== 'admin';
+    $('acceso-err').textContent = '';
+  }));
+  ['codigo-acceso', 'usuario', 'clave'].forEach(id => $(id).addEventListener('keydown', e => { if (e.key === 'Enter') $('entrar').click(); }));
+
+  function guardarRol(r) { rol = r; try { localStorage.setItem(ROL_KEY, r); } catch (e) {} }
+
+  $('entrar').addEventListener('click', async () => {
+    const err = $('acceso-err');
+    err.textContent = '';
+    if (rolSel === 'admin') {
+      const u = $('usuario').value.trim().toLowerCase();
+      let h = '';
+      try { h = await sha256($('clave').value); } catch (e) {}
+      if (u !== ADMIN_USER || h !== ADMIN_HASH) { err.textContent = 'Usuario o contraseña incorrectos.'; return; }
+      guardarRol('admin');
+      if (conexion === 'claude') { const g = await codigoInvitadosClaude(); if (g) $('codigo').value = g; }
+      aplicarRol();
+      return;
+    }
+    const cod = $('codigo-acceso').value.trim().toUpperCase().replace(/[^A-Z0-9-]/g, '');
+    if (!cod) { err.textContent = 'Escribe el código del evento que te compartió la mesa de control.'; return; }
+    if (conexion === 'claude') {
+      const g = await codigoInvitadosClaude();
+      if (!g) { err.textContent = 'La mesa de control todavía no ha generado un código de invitados.'; return; }
+      if (g !== cod) { err.textContent = 'Código incorrecto. Verifícalo con la mesa de control.'; return; }
+    } else {
+      $('codigo').value = cod;
+      conectarEvento();
+    }
+    guardarRol('juez');
+    aplicarRol();
+  });
+
+  $('salir').addEventListener('click', () => {
+    rol = null;
+    try { localStorage.removeItem(ROL_KEY); } catch (e) {}
+    aplicarRol();
+  });
+
+  function aplicarRol() {
+    $('acceso').hidden = !!rol;
+    $('salir').hidden = !rol;
+    $('vista-mesa').hidden = rol !== 'admin';
+    $('evento-card').hidden = !(rol === 'admin' && (conexion === 'evento' || conexion === 'claude'));
+    if (rol !== 'admin') setVista('juez');
+    if (rol === 'admin' && conexion === 'claude') {
+      document.querySelector('#evento-card .lbl').textContent = 'Código de invitados';
+      document.querySelector('#evento-card .hint').textContent = 'Comparte este código con los jueces: lo necesitan para entrar a la aplicación.';
+    }
+  }
+
   (async () => {
     const enClaude = !!(window.claude && window.claude.use);
     let db = null;
     if (enClaude) { try { db = await window.claude.use('db'); } catch (e) { db = null; } }
     if (db) {
-      conexion = 'claude';
+      conexion = 'claude'; dbRef = db;
       backend = backendClaude(db);
       setEstado('ok', 'En vivo');
       desuscribir = backend.escuchar();
+      if (rol === 'admin') { const g = await codigoInvitadosClaude(); if (g) $('codigo').value = g; }
     } else if (enClaude) {
       conexion = 'nulo';
       setEstado('err', 'Sin conexión');
       renderMesa();
     } else {
       conexion = 'evento';
-      $('evento-card').hidden = false;
       try { const c = localStorage.getItem(KEY + ':codigo'); if (c) $('codigo').value = c; } catch (e) {}
       conectarEvento();
     }
+    aplicarRol();
   })();
 
   function save() {
