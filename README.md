@@ -19,6 +19,7 @@ https://claude.ai/code/artifact/b124764d-b536-4eaf-9a98-72b5404f98e7
 ## Funciones
 
 - **Acceso con roles**: la mesa de control entra con usuario y contraseña de administrador; los jueces entran como invitados con el código del evento que la mesa genera y comparte.
+- **Programación de combates**: la mesa carga desde el inicio todos los combates de la velada en orden (número, boxeadores, ciudad/departamento y peso en kg); los jueces solo eligen el combate de la lista y califican — los datos llegan ya diligenciados y bloqueados.
 - **Tarjeta de juez**: puntuación por asalto (8, 9 o 10 por esquina), 3, 4 o 5 asaltos configurables.
 - **Proyección del ganador**: cuando votan los 3 jueces (o hay KO/RSC/DQ), la mesa muestra el ganador en un banner y puede proyectarlo a pantalla completa con el lobo y el logo de la liga.
 - **Imagen institucional**: logo de la Liga de Boxeo de Cundinamarca (LIBOXCUND) en el acceso, el pie de la app y la proyección.

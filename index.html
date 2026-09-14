@@ -124,6 +124,26 @@
   }
   input[type="text"]:focus { border-color: var(--focus); box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--focus); }
   input::placeholder { color: var(--muted); opacity: .8; }
+  input[readonly] { background: var(--surface-2); color: var(--muted); }
+  select {
+    width: 100%; font: inherit; font-size: 16px; color: var(--ink);
+    background: var(--surface); border: 1px solid var(--line); border-radius: 6px;
+    padding: 10px 12px; outline: none;
+  }
+  select:focus { border-color: var(--focus); box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--focus); }
+
+  /* Programación de combates (mesa de control) */
+  .prog { display: grid; gap: 12px; border-top: 6px solid var(--ink); }
+  .prog-form { display: grid; grid-template-columns: 80px 1fr 1fr; gap: 10px; }
+  .prog-form .field { display: grid; gap: 4px; }
+  .prog-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); }
+  .prog-item .pnum { font-family: var(--disp); font-weight: 800; font-size: 20px; min-width: 38px; text-align: center; background: var(--surface-2); border-radius: 6px; padding: 6px 4px; flex: none; }
+  .prog-item .ptxt { flex: 1; font-size: 14px; min-width: 0; }
+  .prog-item .ptxt .r { color: var(--rojo); font-weight: 600; }
+  .prog-item .ptxt .a { color: var(--azul); font-weight: 600; }
+  .prog-item .ptxt small { display: block; color: var(--muted); font-size: 12px; }
+  .sel-combate-card { display: grid; gap: 6px; border-top: 6px solid var(--ink); }
+  @media (max-width: 560px) { .prog-form { grid-template-columns: 1fr 1fr; } }
 
   /* Corners */
   .corners { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -332,6 +352,12 @@
   </section>
 
   <div id="pane-juez" class="pane">
+  <section class="card sel-combate-card" id="sel-card" hidden>
+    <label class="lbl" for="sel-combate">Combate de la programación</label>
+    <select id="sel-combate"></select>
+    <div class="hint" id="sel-peso"></div>
+  </section>
+
   <section class="card meta">
     <div class="judge">
       <label class="lbl" for="juez">Juez</label>
@@ -416,6 +442,21 @@
   </div>
 
   <div id="pane-mesa" class="pane" hidden>
+    <section class="card prog">
+      <div class="rtitle">Programación de combates</div>
+      <div class="prog-form">
+        <div class="field"><label class="lbl" for="pc-num">N.º</label><input type="text" id="pc-num" inputmode="numeric" autocomplete="off"></div>
+        <div class="field"><label class="lbl" for="pc-rn">Rojo — Nombre</label><input type="text" id="pc-rn" placeholder="Boxeador(a)" autocomplete="off"></div>
+        <div class="field"><label class="lbl" for="pc-rl">Rojo — Ciudad/Depto</label><input type="text" id="pc-rl" autocomplete="off"></div>
+        <div class="field"><label class="lbl" for="pc-peso">Peso (kg)</label><input type="text" id="pc-peso" inputmode="decimal" placeholder="Ej. 60" autocomplete="off"></div>
+        <div class="field"><label class="lbl" for="pc-an">Azul — Nombre</label><input type="text" id="pc-an" placeholder="Boxeador(a)" autocomplete="off"></div>
+        <div class="field"><label class="lbl" for="pc-al">Azul — Ciudad/Depto</label><input type="text" id="pc-al" autocomplete="off"></div>
+      </div>
+      <button class="btn primary" type="button" id="pc-agregar">Agregar combate</button>
+      <div id="prog-lista"></div>
+      <div class="toast" id="toast-prog"></div>
+    </section>
+
     <div class="actions left">
       <button class="btn" type="button" id="copiar-mesa">Copiar resumen</button>
       <button class="btn" type="button" id="compartir-mesa">Compartir resumen</button>
@@ -654,6 +695,17 @@
   $('nuevo').addEventListener('click', () => {
     state.r = Array(state.rounds).fill(null); state.a = Array(state.rounds).fill(null);
     state.modo = 'PTS'; state.gana = null; state.asalto = null;
+    if (combateSel && programa.length) {
+      const i = programa.findIndex(c => c.id === combateSel);
+      const sig = i >= 0 ? programa[i + 1] : null;
+      if (sig) { aplicarCombate(sig.id); toast('Tarjeta en blanco. Pasas al combate ' + (sig.num ?? '') + ' de la programación.'); }
+      else {
+        soltarCombate();
+        ['combate', 'nombre-r', 'lugar-r', 'nombre-a', 'lugar-a'].forEach(id => $(id).value = '');
+        render(); save(); toast('Tarjeta en blanco. Era el último combate de la programación.');
+      }
+      return;
+    }
     ['nombre-r', 'lugar-r', 'nombre-a', 'lugar-a'].forEach(id => $(id).value = '');
     const c = parseInt($('combate').value, 10); if (!isNaN(c)) $('combate').value = String(c + 1);
     render(); save(); toast('Tarjeta en blanco. Se conserva el juez y pasa al siguiente combate.');
@@ -670,14 +722,127 @@
   function setEstado(cls, txt) { const est = $('estado'); est.className = 'estado' + (cls ? ' ' + cls : ''); est.textContent = txt; }
   function recibir(lista) { tarjetas = lista; renderMesa(); }
 
+  // ---------- Programación de combates (la carga la mesa de control) ----------
+  let programa = [], combateSel = null;
+  try { combateSel = localStorage.getItem(KEY + ':sel') || null; } catch (e) {}
+
+  const ordenNum = (a, b) => {
+    const x = parseFloat(a.num), y = parseFloat(b.num);
+    if (isNaN(x) && isNaN(y)) return (a.tsc || 0) - (b.tsc || 0);
+    if (isNaN(x)) return 1;
+    if (isNaN(y)) return -1;
+    return x - y;
+  };
+
+  function recibirCombates(lista) {
+    programa = lista.slice().sort(ordenNum);
+    renderPrograma();
+    renderMesa();
+  }
+
+  function bloquear(on) {
+    ['combate', 'nombre-r', 'lugar-r', 'nombre-a', 'lugar-a'].forEach(id => $(id).readOnly = on);
+  }
+
+  function aplicarCombate(id) {
+    const c = programa.find(x => x.id === id);
+    if (!c) return;
+    combateSel = id;
+    try { localStorage.setItem(KEY + ':sel', id); } catch (e) {}
+    $('sel-combate').value = id;
+    $('combate').value = c.num != null ? String(c.num) : '';
+    $('nombre-r').value = (c.rojo && c.rojo.nombre) || ''; $('lugar-r').value = (c.rojo && c.rojo.lugar) || '';
+    $('nombre-a').value = (c.azul && c.azul.nombre) || ''; $('lugar-a').value = (c.azul && c.azul.lugar) || '';
+    $('sel-peso').textContent = c.peso ? 'Categoría: ' + c.peso + ' kg · Los datos los puso la mesa de control.' : 'Los datos los puso la mesa de control.';
+    bloquear(true);
+    render(); save();
+  }
+
+  function soltarCombate() {
+    combateSel = null;
+    try { localStorage.removeItem(KEY + ':sel'); } catch (e) {}
+    $('sel-combate').value = '';
+    $('sel-peso').textContent = '';
+    bloquear(false);
+  }
+
+  function renderPrograma() {
+    // Lista para la mesa de control
+    const box = $('prog-lista');
+    box.innerHTML = programa.length ? programa.map(c =>
+      '<div class="prog-item"><span class="pnum">' + esc(c.num ?? '?') + '</span>' +
+      '<span class="ptxt"><span class="r">' + esc((c.rojo && c.rojo.nombre) || '¿?') + '</span>' + (c.rojo && c.rojo.lugar ? ' (' + esc(c.rojo.lugar) + ')' : '') +
+      ' vs <span class="a">' + esc((c.azul && c.azul.nombre) || '¿?') + '</span>' + (c.azul && c.azul.lugar ? ' (' + esc(c.azul.lugar) + ')' : '') +
+      (c.peso ? '<small>' + esc(c.peso) + ' kg</small>' : '') + '</span>' +
+      '<button type="button" class="del" data-id="' + esc(c.id) + '" aria-label="Quitar combate">✕</button></div>'
+    ).join('') : '<div class="hint">Todavía no hay combates programados. Agrégalos aquí en el orden de la velada: los jueces los verán al instante.</div>';
+    if (!$('pc-num').value.trim()) {
+      const usados = programa.map(c => parseInt(c.num, 10)).filter(n => !isNaN(n));
+      $('pc-num').value = String(usados.length ? Math.max(...usados) + 1 : 1);
+    }
+    // Selector para el juez
+    const sel = $('sel-combate');
+    sel.innerHTML = '<option value="">— Elegir combate —</option>' + programa.map(c =>
+      '<option value="' + esc(c.id) + '">N.º ' + esc(c.num ?? '?') + ' · ' + esc((c.rojo && c.rojo.nombre) || 'Rojo') + ' vs ' + esc((c.azul && c.azul.nombre) || 'Azul') + (c.peso ? ' · ' + esc(c.peso) + ' kg' : '') + '</option>'
+    ).join('');
+    $('sel-card').hidden = programa.length === 0;
+    if (combateSel) {
+      if (programa.some(c => c.id === combateSel)) aplicarCombate(combateSel);
+      else { soltarCombate(); render(); save(); }
+    }
+  }
+
+  $('sel-combate').addEventListener('change', () => {
+    const v = $('sel-combate').value;
+    if (!v) { soltarCombate(); render(); save(); return; }
+    aplicarCombate(v);
+  });
+
+  $('pc-agregar').addEventListener('click', async () => {
+    if (!backend || !backend.enviarCombate) { toast('Sin conexión con la base compartida.', 'toast-prog'); return; }
+    const v = id => $(id).value.trim();
+    const c = {
+      tsc: Date.now(), num: v('pc-num') || String(programa.length + 1), peso: v('pc-peso'),
+      rojo: { nombre: v('pc-rn'), lugar: v('pc-rl') },
+      azul: { nombre: v('pc-an'), lugar: v('pc-al') }
+    };
+    if (!c.rojo.nombre || !c.azul.nombre) { toast('Escribe el nombre de los dos boxeadores.', 'toast-prog'); return; }
+    const b = $('pc-agregar'); b.disabled = true;
+    try {
+      await backend.enviarCombate(c);
+      ['pc-rn', 'pc-rl', 'pc-an', 'pc-al', 'pc-peso', 'pc-num'].forEach(id => $(id).value = '');
+      const n = parseInt(c.num, 10);
+      if (!isNaN(n)) $('pc-num').value = String(n + 1);
+      toast('Combate ' + c.num + ' agregado a la programación.', 'toast-prog');
+    } catch (e) { toast('No se pudo guardar el combate. Revisa la conexión.', 'toast-prog'); }
+    finally { b.disabled = false; }
+  });
+
+  $('prog-lista').addEventListener('click', async e => {
+    const b = e.target.closest('button.del'); if (!b) return;
+    if (!b.classList.contains('arm')) { b.classList.add('arm'); b.textContent = '¿Quitar?'; setTimeout(() => { b.classList.remove('arm'); b.textContent = '✕'; }, 3000); return; }
+    if (!backend || !backend.anularCombate) { toast('Sin conexión.', 'toast-prog'); return; }
+    try { await backend.anularCombate(b.dataset.id); toast('Combate quitado de la programación.', 'toast-prog'); }
+    catch (err) { toast('No se pudo quitar el combate.', 'toast-prog'); }
+  });
+
   function backendClaude(db) {
     return {
       enviar: t => db.collection('tarjetas').add(t),
       anular: id => db.collection('tarjetas').doc(id).delete(),
-      escuchar: () => db.collection('tarjetas').orderBy('ts', 'desc').limit(1000).onSnapshot(
-        snap => recibir(snap.docs.map(d => Object.assign({ id: d.id }, d.data()))),
-        () => { setEstado('err', 'Desconectado'); toast('Se perdió la conexión en vivo. Recarga la página.', 'toast-mesa'); }
-      )
+      enviarCombate: c => db.collection('combates').add(c),
+      anularCombate: id => db.collection('combates').doc(id).delete(),
+      escuchar: () => {
+        const u1 = db.collection('tarjetas').orderBy('ts', 'desc').limit(1000).onSnapshot(
+          snap => recibir(snap.docs.map(d => Object.assign({ id: d.id }, d.data()))),
+          () => { setEstado('err', 'Desconectado'); toast('Se perdió la conexión en vivo. Recarga la página.', 'toast-mesa'); }
+        );
+        const u2 = db.collection('combates').orderBy('tsc', 'asc').limit(500).onSnapshot(
+          snap => recibirCombates(snap.docs.map(d => Object.assign({ id: d.id }, d.data()))),
+          () => {}
+        );
+        return () => { u1(); u2(); };
+      }
     };
   }
 
@@ -685,28 +850,41 @@
     const topic = 'tarjeta-lobo-' + codigo.toLowerCase();
     const urlPub = 'https://ntfy.sh/' + topic;
     const CK = KEY + ':evento:' + codigo;
-    const docs = new Map(), anuladas = new Set();
+    const docs = new Map(), anuladas = new Set(), combs = new Map(), combsX = new Set();
     try {
       const c = JSON.parse(localStorage.getItem(CK) || 'null');
-      if (c) { (c.t || []).forEach(t => t && t.id && docs.set(t.id, t)); (c.x || []).forEach(id => anuladas.add(id)); }
+      if (c) {
+        (c.t || []).forEach(t => t && t.id && docs.set(t.id, t));
+        (c.x || []).forEach(id => anuladas.add(id));
+        (c.c || []).forEach(t => t && t.id && combs.set(t.id, t));
+        (c.y || []).forEach(id => combsX.add(id));
+      }
     } catch (e) {}
-    function persistir() { try { localStorage.setItem(CK, JSON.stringify({ t: [...docs.values()], x: [...anuladas] })); } catch (e) {} }
-    function emitir() { recibir([...docs.values()].filter(t => !anuladas.has(t.id)).sort((a, b) => (b.ts || 0) - (a.ts || 0))); }
+    function persistir() { try { localStorage.setItem(CK, JSON.stringify({ t: [...docs.values()], x: [...anuladas], c: [...combs.values()], y: [...combsX] })); } catch (e) {} }
+    function emitir() {
+      recibir([...docs.values()].filter(t => !anuladas.has(t.id)).sort((a, b) => (b.ts || 0) - (a.ts || 0)));
+      recibirCombates([...combs.values()].filter(t => !combsX.has(t.id)));
+    }
     function absorber(texto) {
       let m; try { m = JSON.parse(texto); } catch (e) { return; }
       if (m && m.tipo === 'anular' && m.id) anuladas.add(m.id);
       else if (m && m.tipo === 'tarjeta' && m.id) docs.set(m.id, m);
+      else if (m && m.tipo === 'combate' && m.id) combs.set(m.id, m);
+      else if (m && m.tipo === 'anular-combate' && m.id) combsX.add(m.id);
       else return;
       persistir(); emitir();
     }
+    const nuevoId = () => (self.crypto && crypto.randomUUID) ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).slice(2);
     async function publicar(obj) {
       const res = await fetch(urlPub, { method: 'POST', body: JSON.stringify(obj) });
       if (!res.ok) throw new Error('ntfy ' + res.status);
       absorber(JSON.stringify(obj));
     }
     return {
-      enviar: t => publicar(Object.assign({ tipo: 'tarjeta', id: (self.crypto && crypto.randomUUID) ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).slice(2) }, t)),
+      enviar: t => publicar(Object.assign({ tipo: 'tarjeta', id: nuevoId() }, t)),
       anular: id => publicar({ tipo: 'anular', id }),
+      enviarCombate: c => publicar(Object.assign({ tipo: 'combate', id: nuevoId() }, c)),
+      anularCombate: id => publicar({ tipo: 'anular-combate', id }),
       escuchar: () => {
         emitir();
         const es = new EventSource('https://ntfy.sh/' + topic + '/sse?since=all');
@@ -721,7 +899,7 @@
   function codigoLimpio() { return $('codigo').value.trim().toUpperCase().replace(/[^A-Z0-9-]/g, ''); }
   function conectarEvento() {
     if (desuscribir) { desuscribir(); desuscribir = null; }
-    backend = null; tarjetas = [];
+    backend = null; tarjetas = []; recibirCombates([]);
     const codigo = codigoLimpio();
     $('codigo').value = codigo;
     try { localStorage.setItem(KEY + ':codigo', codigo); } catch (e) {}
@@ -763,8 +941,10 @@
     let ganador = null;
     if (state.modo === 'PTS') { const done = state.r.every(Boolean) && state.a.every(Boolean); if (done) ganador = tr > ta ? 'r' : ta > tr ? 'a' : 'empate'; }
     else ganador = state.gana;
+    const cSel = programa.find(x => x.id === combateSel);
     return {
       ts: Date.now(), juez: n('juez'), combate: n('combate'), rounds: state.rounds,
+      peso: (cSel && cSel.peso) || '',
       rojo: { nombre: n('nombre-r'), lugar: n('lugar-r'), asaltos: state.r.slice(), total: tr },
       azul: { nombre: n('nombre-a'), lugar: n('lugar-a'), asaltos: state.a.slice(), total: ta },
       modo: state.modo, asalto: state.asalto, ganador
@@ -857,7 +1037,9 @@
           '<div class="nom">' + esc(nom) + '</div><div class="res">' + esc(cons.txt) + '</div></div>' +
           '<button type="button" class="btn proj" data-combate="' + esc(k) + '" data-cls="' + cons.cls + '" data-nombre="' + esc(nom) + '" data-res="' + esc(cons.txt) + '">Proyectar</button></div>';
       }
-      return '<section class="fight"><div class="fight-head"><div class="fn"><small>Combate</small>' + esc(k) + ' <small style="margin-left:8px">' + lista.length + (lista.length === 1 ? ' tarjeta' : ' tarjetas') + '</small></div><div class="cons ' + cons.cls + '">' + esc(cons.txt) + '</div></div>' +
+      const pb = programa.find(c => String(c.num ?? '') === String(k));
+      const peso = (pb && pb.peso) || (lista.find(t => t.peso) || {}).peso || '';
+      return '<section class="fight"><div class="fight-head"><div class="fn"><small>Combate</small>' + esc(k) + (peso ? ' <small style="margin-left:8px">' + esc(peso) + ' kg</small>' : '') + ' <small style="margin-left:8px">' + lista.length + (lista.length === 1 ? ' tarjeta' : ' tarjetas') + '</small></div><div class="cons ' + cons.cls + '">' + esc(cons.txt) + '</div></div>' +
         '<div class="boxers"><div class="bx r">' + esc(p.rojo.nombre || 'Esquina roja') + '<small>' + esc(p.rojo.lugar || '') + '</small></div><div class="vs">VS</div><div class="bx a">' + esc(p.azul.nombre || 'Esquina azul') + '<small>' + esc(p.azul.lugar || '') + '</small></div></div>' +
         banner +
         '<div class="tw"><table class="tabla"><thead><tr><th>Juez</th><th>Puntaje</th><th>Gana</th><th></th></tr></thead><tbody>' + filas + '</tbody></table></div></section>';
