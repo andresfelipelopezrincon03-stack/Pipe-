@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="Emblema de lobo">
+  <!-- Silueta principal -->
+  <path fill="#1b2430" d="M50 14 L40 20 L26 2 L18 24 L16 40 L26 58 L40 72 L50 90 L60 72 L74 58 L84 40 L82 24 L74 2 L60 20 Z"/>
+  <!-- Orejas internas -->
+  <path fill="#8b95a6" d="M27 9 L35 19 L24 22 Z"/>
+  <path fill="#8b95a6" d="M73 9 L65 19 L76 22 Z"/>
+  <!-- Plano frontal / hocico -->
+  <path fill="#8b95a6" d="M50 50 L39 61 L50 84 L61 61 Z"/>
+  <!-- Nariz -->
+  <path fill="#1b2430" d="M50 66 L45 72 L50 79 L55 72 Z"/>
+  <!-- Ojos -->
+  <path fill="#c8102e" d="M30 39 L43 43 L34 48 Z"/>
+  <path fill="#c8102e" d="M70 39 L57 43 L66 48 Z"/>
+  <!-- Marcas de mejilla -->
+  <path fill="#3a4556" d="M22 44 L31 55 L26 57 Z"/>
+  <path fill="#3a4556" d="M78 44 L69 55 L74 57 Z"/>
+</svg>

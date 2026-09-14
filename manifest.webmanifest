@@ -1,0 +1,17 @@
+{
+  "name": "Tarjeta de Juez de Boxeo",
+  "short_name": "Tarjeta Juez",
+  "description": "Tarjeta de puntuación para jueces de boxeo con mesa de control en vivo.",
+  "lang": "es",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#141a24",
+  "theme_color": "#1b2430",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
