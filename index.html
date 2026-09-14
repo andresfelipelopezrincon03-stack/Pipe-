@@ -143,6 +143,19 @@
   .prog-item .ptxt .a { color: var(--azul); font-weight: 600; }
   .prog-item .ptxt small { display: block; color: var(--muted); font-size: 12px; }
   .sel-combate-card { display: grid; gap: 6px; border-top: 6px solid var(--ink); }
+
+  /* Calificación en vivo en la mesa */
+  .vivas { padding: 10px 14px; border-bottom: 1px solid var(--line); display: grid; gap: 6px; background: color-mix(in srgb, var(--gold) 7%, var(--surface)); }
+  .vivas .l2 { font-size: 11px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
+  .viva { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; font-size: 13px; }
+  .viva .ldot { width: 8px; height: 8px; border-radius: 50%; background: var(--rojo); align-self: center; flex: none; animation: pulso 1.2s ease-in-out infinite; }
+  @keyframes pulso { 50% { opacity: .25; } }
+  .viva .vj { font-weight: 600; }
+  .viva .vr { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .viva .vr .cr { color: var(--rojo); } .viva .vr .ca { color: var(--azul); }
+  .viva .vt { font-family: var(--disp); font-weight: 700; font-size: 17px; font-variant-numeric: tabular-nums; margin-left: auto; }
+  .viva .vt .cr { color: var(--rojo); } .viva .vt .ca { color: var(--azul); }
+  @media (prefers-reduced-motion: reduce) { .viva .ldot { animation: none; } }
   @media (max-width: 560px) { .prog-form { grid-template-columns: 1fr 1fr; } }
 
   /* Corners */
@@ -570,9 +583,9 @@
     if (!b) return;
     const side = b.dataset.side, i = +b.dataset.round, s = +b.dataset.score;
     state[side][i] = (state[side][i] === s) ? null : s; // volver a tocar deselecciona
-    render(); save();
+    render(); save(); programarAvance();
   });
-  fields.forEach(id => $(id).addEventListener('input', () => { render(); save(); }));
+  fields.forEach(id => $(id).addEventListener('input', () => { render(); save(); programarAvance(); }));
 
   $('nasaltos').addEventListener('click', e => {
     const b = e.target.closest('button[data-n]'); if (!b) return;
@@ -594,15 +607,15 @@
     state.modo = b.dataset.modo;
     if (state.modo === 'PTS') { state.gana = null; state.asalto = null; }
     if (!MODOS[state.modo].asalto) state.asalto = null;
-    render(); save();
+    render(); save(); programarAvance();
   });
   $('gana').addEventListener('click', e => {
     const b = e.target.closest('button[data-gana]'); if (!b) return;
-    state.gana = state.gana === b.dataset.gana ? null : b.dataset.gana; render(); save();
+    state.gana = state.gana === b.dataset.gana ? null : b.dataset.gana; render(); save(); programarAvance();
   });
   $('asalto').addEventListener('click', e => {
     const b = e.target.closest('button[data-asalto]'); if (!b) return;
-    const n = +b.dataset.asalto; state.asalto = state.asalto === n ? null : n; render(); save();
+    const n = +b.dataset.asalto; state.asalto = state.asalto === n ? null : n; render(); save(); programarAvance();
   });
 
   function nombreDe(side) { return $('nombre-' + side).value.trim() || (side === 'r' ? 'Esquina roja' : 'Esquina azul'); }
@@ -722,6 +735,40 @@
   function setEstado(cls, txt) { const est = $('estado'); est.className = 'estado' + (cls ? ' ' + cls : ''); est.textContent = txt; }
   function recibir(lista) { tarjetas = lista; renderMesa(); }
 
+  // ---------- Avance en vivo: la mesa ve lo que cada juez va marcando ----------
+  let avances = [], avTimer = null;
+  function recibirAvances(lista) { avances = lista; renderMesa(); }
+
+  function avanceActual() {
+    const n = id => $(id).value.trim();
+    return {
+      clave: ((n('juez') || 'anon') + '|' + (n('combate') || '?')).toLowerCase(),
+      ts: Date.now(), juez: n('juez'), combate: n('combate'),
+      rojo: { nombre: n('nombre-r'), lugar: n('lugar-r') },
+      azul: { nombre: n('nombre-a'), lugar: n('lugar-a') },
+      r: state.r.slice(), a: state.a.slice(), modo: state.modo, gana: state.gana, asalto: state.asalto
+    };
+  }
+  function programarAvance() {
+    clearTimeout(avTimer);
+    avTimer = setTimeout(() => {
+      if (!backend || !backend.avanzar) return;
+      const av = avanceActual();
+      if (!av.combate) return;
+      backend.avanzar(av).catch(() => {});
+    }, 900);
+  }
+
+  function avancesVisibles() {
+    return avances.filter(av =>
+      !tarjetas.some(t =>
+        String(t.combate || '') === String(av.combate || '') &&
+        (t.juez || '').trim().toLowerCase() === (av.juez || '').trim().toLowerCase() &&
+        (t.ts || 0) >= (av.ts || 0)
+      )
+    );
+  }
+
   // ---------- Programación de combates (la carga la mesa de control) ----------
   let programa = [], combateSel = null;
   try { combateSel = localStorage.getItem(KEY + ':sel') || null; } catch (e) {}
@@ -832,6 +879,7 @@
       anular: id => db.collection('tarjetas').doc(id).delete(),
       enviarCombate: c => db.collection('combates').add(c),
       anularCombate: id => db.collection('combates').doc(id).delete(),
+      avanzar: av => db.doc('avances/' + String(av.clave).replace(/[^A-Za-z0-9_.-]/g, '_').slice(0, 150)).set(av),
       escuchar: () => {
         const u1 = db.collection('tarjetas').orderBy('ts', 'desc').limit(1000).onSnapshot(
           snap => recibir(snap.docs.map(d => Object.assign({ id: d.id }, d.data()))),
@@ -841,7 +889,11 @@
           snap => recibirCombates(snap.docs.map(d => Object.assign({ id: d.id }, d.data()))),
           () => {}
         );
-        return () => { u1(); u2(); };
+        const u3 = db.collection('avances').limit(500).onSnapshot(
+          snap => recibirAvances(snap.docs.map(d => d.data())),
+          () => {}
+        );
+        return () => { u1(); u2(); u3(); };
       }
     };
   }
@@ -865,8 +917,15 @@
       recibir([...docs.values()].filter(t => !anuladas.has(t.id)).sort((a, b) => (b.ts || 0) - (a.ts || 0)));
       recibirCombates([...combs.values()].filter(t => !combsX.has(t.id)));
     }
+    const avs = new Map();
+    function emitirAv() { recibirAvances([...avs.values()]); }
     function absorber(texto) {
       let m; try { m = JSON.parse(texto); } catch (e) { return; }
+      if (m && m.tipo === 'avance' && m.clave) {
+        const prev = avs.get(m.clave);
+        if (!prev || (m.ts || 0) >= (prev.ts || 0)) { avs.set(m.clave, m); emitirAv(); }
+        return; // los avances viven solo en memoria, no se guardan
+      }
       if (m && m.tipo === 'anular' && m.id) anuladas.add(m.id);
       else if (m && m.tipo === 'tarjeta' && m.id) docs.set(m.id, m);
       else if (m && m.tipo === 'combate' && m.id) combs.set(m.id, m);
@@ -885,6 +944,7 @@
       anular: id => publicar({ tipo: 'anular', id }),
       enviarCombate: c => publicar(Object.assign({ tipo: 'combate', id: nuevoId() }, c)),
       anularCombate: id => publicar({ tipo: 'anular-combate', id }),
+      avanzar: av => publicar(Object.assign({ tipo: 'avance' }, av)),
       escuchar: () => {
         emitir();
         const es = new EventSource('https://ntfy.sh/' + topic + '/sse?since=all');
@@ -899,7 +959,7 @@
   function codigoLimpio() { return $('codigo').value.trim().toUpperCase().replace(/[^A-Z0-9-]/g, ''); }
   function conectarEvento() {
     if (desuscribir) { desuscribir(); desuscribir = null; }
-    backend = null; tarjetas = []; recibirCombates([]);
+    backend = null; tarjetas = []; recibirCombates([]); recibirAvances([]);
     const codigo = codigoLimpio();
     $('codigo').value = codigo;
     try { localStorage.setItem(KEY + ':codigo', codigo); } catch (e) {}
@@ -968,6 +1028,7 @@
     const b = $('enviar'); b.disabled = true; b.textContent = 'Enviando…';
     try {
       await backend.enviar(t);
+      clearTimeout(avTimer); // la tarjeta enviada reemplaza el avance en vivo
       toast('Tarjeta enviada a la mesa de control (combate ' + t.combate + ', juez ' + t.juez + ').');
     } catch (e) {
       toast(e && e.code === 'quota_exceeded' ? 'La base de datos está llena: borra tarjetas viejas en la mesa de control.' : 'No se pudo enviar. Revisa la conexión e inténtalo de nuevo.');
@@ -1004,6 +1065,7 @@
   function grupos() {
     const g = new Map();
     tarjetas.forEach(t => { const k = t.combate || '?'; if (!g.has(k)) g.set(k, []); g.get(k).push(t); });
+    avancesVisibles().forEach(av => { const k = av.combate || '?'; if (!g.has(k)) g.set(k, []); });
     return [...g.entries()].sort((x, y) => { const a = parseFloat(x[0]), b = parseFloat(y[0]); return (isNaN(b) ? -1 : b) - (isNaN(a) ? -1 : a); });
   }
   const esc = s => String(s ?? '').replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
@@ -1011,15 +1073,18 @@
   function renderMesa() {
     $('badge').textContent = tarjetas.length; $('badge').hidden = tarjetas.length === 0;
     const box = $('mesa');
-    if (!tarjetas.length) {
+    if (!tarjetas.length && !avancesVisibles().length) {
       let msg = 'Todavía no ha llegado ninguna tarjeta. Cuando un juez toque "Enviar tarjeta", aparecerá aquí al instante.';
       if (conexion === 'evento' && !backend) msg = 'Escribe o genera un código de evento (arriba) y compártelo con todos los jueces: sus tarjetas aparecerán aquí al instante.';
       if (conexion === 'nulo') msg = 'No hay conexión con la mesa de control compartida. La tarjeta sigue funcionando y puedes copiar o compartir el resultado.';
       box.innerHTML = '<div class="empty"><img src="assets/lobo.png" alt=""><div>' + msg + '</div></div>';
       return;
     }
+    const vivos = avancesVisibles();
     box.innerHTML = grupos().map(([k, lista]) => {
-      const p = lista[0], cons = consolidado(lista);
+      const avsK = vivos.filter(av => String(av.combate || '?') === String(k)).sort((a, b) => (a.juez || '').localeCompare(b.juez || ''));
+      const p = lista[0] || avsK[0] || { rojo: {}, azul: {} };
+      const cons = consolidado(lista);
       const filas = lista.map(t => {
         const g = t.ganador, gcls = g === 'r' ? 'rojo' : g === 'a' ? 'azul' : 'empate';
         const det = t.modo === 'PTS' ? '<span class="sub">R: ' + t.rojo.asaltos.map(v => v ?? '–').join('+') + ' · A: ' + t.azul.asaltos.map(v => v ?? '–').join('+') + '</span>' : '<span class="sub">' + esc((MODOS[t.modo] || {}).nombre || '') + '</span>';
@@ -1039,11 +1104,26 @@
       }
       const pb = programa.find(c => String(c.num ?? '') === String(k));
       const peso = (pb && pb.peso) || (lista.find(t => t.peso) || {}).peso || '';
+      const vivas = avsK.length ? '<div class="vivas"><div class="l2">Calificando en vivo</div>' + avsK.map(filaViva).join('') + '</div>' : '';
       return '<section class="fight"><div class="fight-head"><div class="fn"><small>Combate</small>' + esc(k) + (peso ? ' <small style="margin-left:8px">' + esc(peso) + ' kg</small>' : '') + ' <small style="margin-left:8px">' + lista.length + (lista.length === 1 ? ' tarjeta' : ' tarjetas') + '</small></div><div class="cons ' + cons.cls + '">' + esc(cons.txt) + '</div></div>' +
         '<div class="boxers"><div class="bx r">' + esc(p.rojo.nombre || 'Esquina roja') + '<small>' + esc(p.rojo.lugar || '') + '</small></div><div class="vs">VS</div><div class="bx a">' + esc(p.azul.nombre || 'Esquina azul') + '<small>' + esc(p.azul.lugar || '') + '</small></div></div>' +
-        banner +
-        '<div class="tw"><table class="tabla"><thead><tr><th>Juez</th><th>Puntaje</th><th>Gana</th><th></th></tr></thead><tbody>' + filas + '</tbody></table></div></section>';
+        vivas + banner +
+        (filas ? '<div class="tw"><table class="tabla"><thead><tr><th>Juez</th><th>Puntaje</th><th>Gana</th><th></th></tr></thead><tbody>' + filas + '</tbody></table></div>' : '') +
+        '</section>';
     }).join('');
+  }
+
+  function filaViva(av) {
+    const rs = Array.isArray(av.r) ? av.r : [], as2 = Array.isArray(av.a) ? av.a : [];
+    const n = Math.max(rs.length, as2.length);
+    const vNum = v => SCORES.includes(v) ? v : '–';
+    const det = [];
+    for (let i = 0; i < n; i++) det.push('A' + (i + 1) + ' <b class="cr">' + vNum(rs[i]) + '</b>–<b class="ca">' + vNum(as2[i]) + '</b>');
+    const suma = arr => arr.reduce((t, v) => t + (SCORES.includes(v) ? v : 0), 0);
+    const modoTxt = av.modo && av.modo !== 'PTS' && MODOS[av.modo] ? ' · ' + MODOS[av.modo].corto : '';
+    return '<div class="viva"><span class="ldot" aria-hidden="true"></span><span class="vj">' + esc(av.juez || 'Sin nombre') + '</span>' +
+      '<span class="vr">' + det.join(' · ') + esc(modoTxt) + '</span>' +
+      '<span class="vt"><span class="cr">' + suma(rs) + '</span>–<span class="ca">' + suma(as2) + '</span></span></div>';
   }
 
   function proyectar(d) {
