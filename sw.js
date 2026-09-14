@@ -1,5 +1,5 @@
 /* Service worker: deja usar la tarjeta sin conexión (la mesa de control necesita internet). */
-const CACHE = 'tarjeta-juez-v4';
+const CACHE = 'tarjeta-juez-v5';
 const SHELL = ['.', 'index.html', 'manifest.webmanifest', 'assets/lobo.png', 'assets/lobo-cabeza.png', 'assets/liga.png', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
