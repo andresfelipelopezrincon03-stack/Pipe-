@@ -1,0 +1,825 @@
+<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body>
+<!-- ARTIFACT-START -->
+<title>Tarjeta de Juez de Boxeo</title>
+<meta name="theme-color" content="#1b2430">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="assets/lobo-cabeza.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --bg: #f4f3ef;
+    --surface: #ffffff;
+    --surface-2: #ebe9e3;
+    --ink: #17191e;
+    --muted: #6a6d75;
+    --line: #d9d7d0;
+    --rojo: #c8102e;
+    --rojo-soft: #fbe6ea;
+    --azul: #0a4da6;
+    --azul-soft: #e2ebf8;
+    --gold: #b8860b;
+    --focus: #17191e;
+    --shadow: 0 1px 2px rgba(0,0,0,.06), 0 6px 18px rgba(0,0,0,.06);
+    --disp: "Barlow Condensed", "Arial Narrow", Impact, sans-serif;
+    --body: "Barlow", "Helvetica Neue", Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #121317;
+      --surface: #1d1f25;
+      --surface-2: #272a31;
+      --ink: #f1f0ec;
+      --muted: #9a9da6;
+      --line: #363942;
+      --rojo: #e8354f;
+      --rojo-soft: #3a1a21;
+      --azul: #4c8ae6;
+      --azul-soft: #1a2740;
+      --gold: #e0b34a;
+      --focus: #f1f0ec;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 6px 18px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #121317;
+    --surface: #1d1f25;
+    --surface-2: #272a31;
+    --ink: #f1f0ec;
+    --muted: #9a9da6;
+    --line: #363942;
+    --rojo: #e8354f;
+    --rojo-soft: #3a1a21;
+    --azul: #4c8ae6;
+    --azul-soft: #1a2740;
+    --gold: #e0b34a;
+    --focus: #f1f0ec;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 6px 18px rgba(0,0,0,.35);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.4;
+    padding-inline: 16px;
+    padding-block: 70px 150px; /* room for the app bar and the tab bar */
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: none;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; display: grid; gap: 14px; }
+
+  /* App bar */
+  .appbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 20; background: #1b2430; color: #f1f0ec;
+    padding-inline: 16px; padding-top: env(safe-area-inset-top, 0);
+    border-bottom: 3px solid var(--rojo);
+  }
+  .appbar-in { max-width: 760px; margin: 0 auto; height: 54px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-family: var(--disp); font-weight: 800; font-size: 22px; text-transform: uppercase; letter-spacing: .03em; min-width: 0; }
+  .brand-t { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .lobo { width: 34px; height: 34px; flex: none; object-fit: contain; }
+  .card { background: var(--surface); border-radius: 10px; box-shadow: var(--shadow); padding: 14px; }
+  .evento { border-top: 6px solid var(--rojo); display: grid; gap: 8px; }
+  .evento-row { display: flex; gap: 8px; }
+  .evento-row input { flex: 1; text-transform: uppercase; font-weight: 600; letter-spacing: .06em; }
+  .meta { display: grid; grid-template-columns: 1fr 110px 150px; gap: 10px; align-items: end; }
+  .judge { display: grid; gap: 4px; }
+  @media (max-width: 560px) { .meta { grid-template-columns: 1fr 100px; } .judge.nasaltos { grid-column: 1 / -1; } }
+
+  /* Tab bar */
+  .tabbar {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 20; background: var(--surface); border-top: 1px solid var(--line);
+    display: grid; grid-template-columns: 1fr 1fr; padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+  .tabbar button {
+    font: inherit; font-size: 12px; font-weight: 600; letter-spacing: .02em; min-height: 60px; border: 0; background: transparent; color: var(--muted);
+    cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; position: relative;
+  }
+  .tabbar button svg { width: 24px; height: 24px; }
+  .tabbar button[aria-pressed="true"] { color: var(--rojo); }
+  .tabbar button[aria-pressed="true"]::before { content: ""; position: absolute; top: 0; left: 20%; right: 20%; height: 3px; background: var(--rojo); border-radius: 0 0 3px 3px; }
+  .tabbar button:focus-visible { outline: 2px solid var(--focus); outline-offset: -4px; }
+  .tabbar .badge { position: absolute; top: 8px; left: calc(50% + 6px); }
+
+  /* Sticky send button */
+  .sticky-cta { position: fixed; left: 0; right: 0; bottom: calc(60px + env(safe-area-inset-bottom, 0)); z-index: 19; padding: 10px 16px; pointer-events: none;
+    background: linear-gradient(to top, var(--bg) 60%, transparent); }
+  .sticky-cta .btn { pointer-events: auto; max-width: 760px; margin: 0 auto; display: block; width: 100%; }
+  .btn.big { font-family: var(--disp); font-size: 22px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; min-height: 54px; }
+
+  .lbl { font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  input[type="text"] {
+    width: 100%; font: inherit; font-size: 16px; color: var(--ink);
+    background: var(--surface); border: 1px solid var(--line); border-radius: 6px;
+    padding: 10px 12px; outline: none;
+  }
+  input[type="text"]:focus { border-color: var(--focus); box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--focus); }
+  input::placeholder { color: var(--muted); opacity: .8; }
+
+  /* Corners */
+  .corners { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .corner {
+    background: var(--surface); border-radius: 10px; box-shadow: var(--shadow);
+    padding: 14px; display: grid; gap: 10px; border-top: 6px solid var(--c);
+  }
+  .corner.rojo { --c: var(--rojo); }
+  .corner.azul { --c: var(--azul); }
+  .corner .tag { font-family: var(--disp); font-weight: 700; font-size: 20px; text-transform: uppercase; letter-spacing: .04em; color: var(--c); }
+  .corner .field { display: grid; gap: 4px; }
+
+  /* Rounds */
+  .rounds { background: var(--surface); border-radius: 10px; box-shadow: var(--shadow); overflow: hidden; }
+  .rhead, .round { display: grid; grid-template-columns: 74px 1fr 1fr; align-items: center; gap: 10px; padding: 10px 14px; }
+  .rhead { background: var(--surface-2); font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .rhead .r { color: var(--rojo); } .rhead .a { color: var(--azul); }
+  .rhead span:not(:first-child), .round .seg { text-align: center; }
+  .round { border-top: 1px solid var(--line); }
+  .round .name { font-family: var(--disp); font-weight: 700; font-size: 22px; text-transform: uppercase; line-height: 1; }
+  .round .name small { display: block; font-family: var(--body); font-weight: 500; font-size: 11px; letter-spacing: .08em; color: var(--muted); text-transform: uppercase; margin-top: 3px; }
+  .seg { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+  .seg button {
+    font-family: var(--disp); font-weight: 700; font-size: 21px; line-height: 1;
+    min-height: 48px; border: 1px solid var(--line); border-radius: 6px;
+    background: var(--surface); color: var(--ink); cursor: pointer; padding: 0;
+    transition: background .12s, color .12s, border-color .12s, transform .06s;
+  }
+  .seg button:hover { background: var(--surface-2); }
+  .seg button:active { transform: scale(.96); }
+  .seg button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .seg.rojo button[aria-pressed="true"] { background: var(--rojo); border-color: var(--rojo); color: #fff; }
+  .seg.azul button[aria-pressed="true"] { background: var(--azul); border-color: var(--azul); color: #fff; }
+
+  /* Totals */
+  .totals { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: stretch; }
+  .total {
+    background: var(--surface); border-radius: 10px; box-shadow: var(--shadow); padding: 14px;
+    display: grid; gap: 2px; text-align: center; border: 2px solid transparent;
+  }
+  .total .who { font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--c); }
+  .total .n { font-family: var(--disp); font-weight: 800; font-size: 56px; line-height: 1; font-variant-numeric: tabular-nums; }
+  .total .detail { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; min-height: 1.3em; }
+  .total.rojo { --c: var(--rojo); } .total.azul { --c: var(--azul); }
+  .total.gana { border-color: var(--c); background: color-mix(in srgb, var(--c) 8%, var(--surface)); }
+  .vs { align-self: center; font-family: var(--disp); font-weight: 700; font-size: 18px; color: var(--muted); letter-spacing: .1em; }
+
+  .verdict {
+    text-align: center; font-family: var(--disp); font-weight: 800; font-size: clamp(22px, 5vw, 30px);
+    text-transform: uppercase; letter-spacing: .03em; min-height: 1.2em; text-wrap: balance;
+  }
+  .verdict.rojo { color: var(--rojo); } .verdict.azul { color: var(--azul); }
+  .verdict.empate { color: var(--gold); } .verdict.pend { color: var(--muted); font-family: var(--body); font-weight: 500; font-size: 14px; text-transform: none; letter-spacing: 0; }
+
+  /* Result mode */
+  .result { background: var(--surface); border-radius: 10px; box-shadow: var(--shadow); padding: 14px; display: grid; gap: 12px; }
+  .rtitle { font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .chips { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+  .chips.two { grid-template-columns: 1fr 1fr; } .chips.three { grid-template-columns: repeat(3, 1fr); }
+  .chips.n { display: flex; gap: 6px; }
+  .chips.n button { flex: 1; }
+  .chips button {
+    font-family: var(--disp); font-weight: 700; font-size: 18px; line-height: 1; min-height: 46px; padding: 6px 4px;
+    border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--ink); cursor: pointer;
+    text-transform: uppercase; letter-spacing: .03em;
+  }
+  .chips button:hover { background: var(--surface-2); }
+  .chips button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .chips button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+  .chips button.cr[aria-pressed="true"] { background: var(--rojo); border-color: var(--rojo); color: #fff; }
+  .chips button.ca[aria-pressed="true"] { background: var(--azul); border-color: var(--azul); color: #fff; }
+  .sub { display: grid; gap: 12px; border-top: 1px solid var(--line); padding-top: 12px; }
+  .sub .field { display: grid; gap: 6px; }
+  .hint { font-size: 13px; color: var(--muted); }
+  .rounds.off { opacity: .45; }
+  @media (max-width: 560px) { .chips { grid-template-columns: repeat(4, 1fr); } .chips button { font-size: 16px; } }
+
+  /* View state */
+  .badge { font-family: var(--disp); font-weight: 700; font-size: 12px; line-height: 1; background: var(--rojo); color: #fff; border-radius: 999px; padding: 3px 6px; min-width: 20px; text-align: center; }
+  .pane { display: grid; gap: 14px; }
+  .pane[hidden], .sub[hidden], .field[hidden], .badge[hidden] { display: none; }
+  .estado { font-size: 12px; font-weight: 600; letter-spacing: .04em; color: rgba(241,240,236,.72); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .estado::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #9a9da6; flex: none; }
+  .estado.ok::before { background: #3ccf6e; }
+  .estado.err::before { background: #ff5a6e; }
+
+  /* Mesa de control */
+  .mesa { display: grid; gap: 14px; }
+  .empty { text-align: center; color: var(--muted); padding: 30px 10px; background: var(--surface); border-radius: 10px; box-shadow: var(--shadow); display: grid; gap: 10px; justify-items: center; }
+  .empty img { height: 110px; opacity: .9; }
+  .fight { background: var(--surface); border-radius: 10px; box-shadow: var(--shadow); overflow: hidden; }
+  .fight-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 14px; padding: 12px 14px; background: var(--surface-2); }
+  .fight-head .fn { font-family: var(--disp); font-weight: 800; font-size: 22px; text-transform: uppercase; }
+  .fight-head .fn small { font-family: var(--body); font-weight: 500; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-right: 8px; }
+  .fight-head .cons { font-family: var(--disp); font-weight: 700; font-size: 18px; text-transform: uppercase; }
+  .fight-head .cons.rojo { color: var(--rojo); } .fight-head .cons.azul { color: var(--azul); } .fight-head .cons.empate { color: var(--gold); }
+  .boxers { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--line); align-items: center; }
+  .boxers .bx { font-weight: 600; } .boxers .bx small { display: block; font-weight: 400; font-size: 12px; color: var(--muted); }
+  .boxers .bx.r { color: var(--rojo); } .boxers .bx.a { color: var(--azul); text-align: right; }
+  .boxers .vs { font-size: 14px; }
+  .tabla { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .tabla th { text-align: left; font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding: 8px 14px; border-bottom: 1px solid var(--line); }
+  .tabla td:last-child { text-align: right; }
+  .tabla td { padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: middle; font-variant-numeric: tabular-nums; }
+  .tabla tr:last-child td { border-bottom: 0; }
+  .tabla .num { font-family: var(--disp); font-weight: 700; font-size: 20px; white-space: nowrap; }
+  .tabla .num .cr { color: var(--rojo); } .tabla .num .ca { color: var(--azul); }
+  .tabla .sub { font-size: 12px; color: var(--muted); display: block; border: 0; padding: 0; }
+  .pill { display: inline-block; font-family: var(--disp); font-weight: 700; font-size: 14px; letter-spacing: .04em; text-transform: uppercase; padding: 4px 8px; border-radius: 4px; color: #fff; white-space: nowrap; }
+  .pill.rojo { background: var(--rojo); } .pill.azul { background: var(--azul); } .pill.empate { background: var(--gold); }
+  .del { font: inherit; font-size: 12px; color: var(--muted); background: transparent; border: 1px solid var(--line); border-radius: 4px; padding: 4px 8px; cursor: pointer; white-space: nowrap; }
+  .del:hover { color: var(--rojo); border-color: var(--rojo); }
+  .del.arm { color: #fff; background: var(--rojo); border-color: var(--rojo); }
+  .tw { overflow-x: auto; }
+  @media (max-width: 520px) { .tabla th, .tabla td { padding: 8px 10px; } .tabla .hide-m { display: none; } }
+
+  /* Actions */
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  .actions.left { justify-content: flex-start; }
+  .btn:disabled { opacity: .55; cursor: default; }
+  .btn {
+    font: inherit; font-weight: 600; font-size: 15px; padding: 12px 18px; border-radius: 8px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--surface); color: var(--ink); min-height: 46px;
+  }
+  .btn.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .toast { text-align: center; font-size: 13px; color: var(--muted); min-height: 1.3em; }
+
+  @media (max-width: 520px) {
+    .corners { grid-template-columns: 1fr; }
+    .rhead, .round { grid-template-columns: 44px 1fr 1fr; gap: 6px; padding: 10px 8px; }
+    .round .name { font-size: 18px; }
+    .seg { gap: 3px; }
+    .seg button { font-size: 17px; min-height: 46px; }
+    .total .n { font-size: 46px; }
+    .totals { gap: 8px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .seg button { transition: none; } }
+</style>
+
+<header class="appbar">
+  <div class="appbar-in">
+    <div class="brand">
+      <img class="lobo" src="assets/lobo-cabeza.png" alt="">
+      <span class="brand-t" id="appbar-title">Tarjeta de juez</span>
+    </div>
+    <div class="estado" id="estado">Conectando…</div>
+  </div>
+</header>
+
+<div class="wrap">
+  <section class="card evento" id="evento-card" hidden>
+    <label class="lbl" for="codigo">Código del evento</label>
+    <div class="evento-row">
+      <input type="text" id="codigo" placeholder="Ej. LOBO-7K4N" autocomplete="off" autocapitalize="characters" spellcheck="false">
+      <button class="btn" type="button" id="gen-codigo">Generar</button>
+    </div>
+    <div class="hint">Comparte este código con todos los jueces y la mesa de control: quienes escriban el mismo código quedan conectados entre sí en vivo.</div>
+  </section>
+
+  <div id="pane-juez" class="pane">
+  <section class="card meta">
+    <div class="judge">
+      <label class="lbl" for="juez">Juez</label>
+      <input type="text" id="juez" placeholder="Nombre del juez" autocomplete="off">
+    </div>
+    <div class="judge combate">
+      <label class="lbl" for="combate">Combate N.º</label>
+      <input type="text" id="combate" placeholder="Ej. 1" autocomplete="off" inputmode="numeric">
+    </div>
+    <div class="judge nasaltos">
+      <span class="lbl" id="lbl-nasaltos">Asaltos</span>
+      <div class="chips n" id="nasaltos" role="radiogroup" aria-labelledby="lbl-nasaltos">
+        <button type="button" data-n="3" aria-pressed="true">3</button>
+        <button type="button" data-n="4" aria-pressed="false">4</button>
+        <button type="button" data-n="5" aria-pressed="false">5</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="corners">
+    <div class="corner rojo">
+      <div class="tag">Esquina roja</div>
+      <div class="field"><label class="lbl" for="nombre-r">Nombre</label><input type="text" id="nombre-r" placeholder="Boxeador(a)" autocomplete="off"></div>
+      <div class="field"><label class="lbl" for="lugar-r">Departamento o ciudad</label><input type="text" id="lugar-r" placeholder="Ej. Cundinamarca" autocomplete="off"></div>
+    </div>
+    <div class="corner azul">
+      <div class="tag">Esquina azul</div>
+      <div class="field"><label class="lbl" for="nombre-a">Nombre</label><input type="text" id="nombre-a" placeholder="Boxeador(a)" autocomplete="off"></div>
+      <div class="field"><label class="lbl" for="lugar-a">Departamento o ciudad</label><input type="text" id="lugar-a" placeholder="Ej. Bogotá" autocomplete="off"></div>
+    </div>
+  </section>
+
+  <section class="rounds" aria-label="Puntuación por asalto">
+    <div class="rhead"><span>Asalto</span><span class="r">Rojo</span><span class="a">Azul</span></div>
+    <div id="rounds"></div>
+  </section>
+
+  <section class="totals">
+    <div class="total rojo" id="tot-r"><div class="who" id="who-r">Rojo</div><div class="n" id="n-r">0</div><div class="detail" id="d-r"></div></div>
+    <div class="vs">VS</div>
+    <div class="total azul" id="tot-a"><div class="who" id="who-a">Azul</div><div class="n" id="n-a">0</div><div class="detail" id="d-a"></div></div>
+  </section>
+
+  <section class="result">
+    <div class="rtitle">Forma de resultado</div>
+    <div class="chips" id="modo" role="radiogroup" aria-label="Forma de resultado">
+      <button type="button" data-modo="PTS" aria-pressed="true">Puntos</button>
+      <button type="button" data-modo="KO" aria-pressed="false">KO</button>
+      <button type="button" data-modo="RSC" aria-pressed="false">RSC</button>
+      <button type="button" data-modo="RSCI" aria-pressed="false">RSCI</button>
+      <button type="button" data-modo="ABD" aria-pressed="false">Abandono</button>
+      <button type="button" data-modo="DQ" aria-pressed="false">DQ</button>
+      <button type="button" data-modo="WO" aria-pressed="false">WO</button>
+    </div>
+    <div class="sub" id="modo-sub" hidden>
+      <div class="field">
+        <span class="lbl">Gana</span>
+        <div class="chips two" id="gana" role="radiogroup" aria-label="Esquina ganadora">
+          <button type="button" data-gana="r" class="cr" aria-pressed="false">Esquina roja</button>
+          <button type="button" data-gana="a" class="ca" aria-pressed="false">Esquina azul</button>
+        </div>
+      </div>
+      <div class="field" id="asalto-field">
+        <span class="lbl">En el asalto</span>
+        <div class="chips three" id="asalto" role="radiogroup" aria-label="Asalto del resultado"></div>
+      </div>
+      <div class="hint" id="modo-hint"></div>
+    </div>
+  </section>
+
+  <div class="verdict pend" id="verdict">Califica los asaltos para ver el resultado.</div>
+
+  <div class="actions">
+    <button class="btn" type="button" id="copiar">Copiar resultado</button>
+    <button class="btn" type="button" id="compartir">Compartir</button>
+    <button class="btn" type="button" id="nuevo">Nuevo combate</button>
+  </div>
+  <div class="toast" id="toast"></div>
+  <div class="sticky-cta">
+    <button class="btn primary big" type="button" id="enviar">Enviar tarjeta</button>
+  </div>
+  </div>
+
+  <div id="pane-mesa" class="pane" hidden>
+    <div class="actions left">
+      <button class="btn" type="button" id="copiar-mesa">Copiar resumen</button>
+      <button class="btn" type="button" id="compartir-mesa">Compartir resumen</button>
+    </div>
+    <div id="mesa" class="mesa"></div>
+    <div class="toast" id="toast-mesa"></div>
+  </div>
+</div>
+
+<nav class="tabbar" aria-label="Vista">
+  <button type="button" id="vista-juez" data-vista="juez" aria-pressed="true">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v13H8l-4 4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 9h8M8 13h5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    <span>Juez</span>
+  </button>
+  <button type="button" id="vista-mesa" data-vista="mesa" aria-pressed="false">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 10h18M9 10v10" stroke="currentColor" stroke-width="2"/></svg>
+    <span>Mesa de control</span>
+    <span class="badge" id="badge" hidden>0</span>
+  </button>
+</nav>
+
+<script>
+(function () {
+  const MAXR = 5, SCORES = [7, 8, 9, 10], KEY = 'tarjeta-juez-boxeo';
+  const state = { rounds: 3, r: [null, null, null], a: [null, null, null], modo: 'PTS', gana: null, asalto: null };
+  const MODOS = {
+    PTS: { nombre: 'Decisión por puntos', corto: 'PTS', asalto: false, hint: '' },
+    KO: { nombre: 'Nocaut', corto: 'KO', asalto: true, hint: 'KO: el rival no se levanta antes de la cuenta de diez.' },
+    RSC: { nombre: 'Referee detiene el combate', corto: 'RSC', asalto: true, hint: 'RSC: el árbitro detiene la pelea por superioridad o por protección del boxeador.' },
+    RSCI: { nombre: 'Referee detiene el combate por lesión', corto: 'RSCI', asalto: true, hint: 'RSCI: el árbitro detiene la pelea por una lesión del boxeador.' },
+    ABD: { nombre: 'Abandono', corto: 'ABD', asalto: true, hint: 'Abandono: el boxeador o su esquina se retiran del combate.' },
+    DQ: { nombre: 'Descalificación', corto: 'DQ', asalto: true, hint: 'DQ: el rival queda descalificado por faltas al reglamento.' },
+    WO: { nombre: 'Walkover', corto: 'WO', asalto: false, hint: 'WO: el rival no se presenta al combate. No se califican asaltos.' }
+  };
+  const $ = id => document.getElementById(id);
+  const fields = ['juez', 'combate', 'nombre-r', 'lugar-r', 'nombre-a', 'lugar-a'];
+
+  // Build round rows and finish-round chips for the current round count
+  function buildRounds() {
+    const box = $('rounds');
+    box.innerHTML = '';
+    for (let i = 0; i < state.rounds; i++) {
+      const row = document.createElement('div');
+      row.className = 'round';
+      row.innerHTML = '<div class="name">' + (i + 1) + '<small>Asalto</small></div>' + seg('r', i) + seg('a', i);
+      box.appendChild(row);
+    }
+    const af = $('asalto');
+    af.innerHTML = '';
+    for (let i = 1; i <= state.rounds; i++) {
+      const b = document.createElement('button');
+      b.type = 'button'; b.dataset.asalto = i; b.textContent = i;
+      b.setAttribute('aria-pressed', 'false');
+      af.appendChild(b);
+    }
+    af.className = 'chips ' + (state.rounds === 3 ? 'three' : 'n');
+  }
+  function seg(side, i) {
+    const cls = side === 'r' ? 'rojo' : 'azul';
+    return '<div class="seg ' + cls + '" role="group" aria-label="Asalto ' + (i + 1) + ' ' + cls + '">' +
+      SCORES.map(s => '<button type="button" id="s-' + side + '-' + i + '-' + s + '" data-side="' + side + '" data-round="' + i + '" data-score="' + s + '" aria-pressed="false">' + s + '</button>').join('') +
+      '</div>';
+  }
+
+  $('rounds').addEventListener('click', e => {
+    const b = e.target.closest('button[data-score]');
+    if (!b) return;
+    const side = b.dataset.side, i = +b.dataset.round, s = +b.dataset.score;
+    state[side][i] = (state[side][i] === s) ? null : s; // volver a tocar deselecciona
+    render(); save();
+  });
+  fields.forEach(id => $(id).addEventListener('input', () => { render(); save(); }));
+
+  $('nasaltos').addEventListener('click', e => {
+    const b = e.target.closest('button[data-n]'); if (!b) return;
+    const n = +b.dataset.n;
+    if (n === state.rounds) return;
+    setRounds(n); buildRounds(); render(); save();
+  });
+  function setRounds(n) {
+    state.rounds = n;
+    for (const side of ['r', 'a']) {
+      state[side] = state[side].slice(0, n);
+      while (state[side].length < n) state[side].push(null);
+    }
+    if (state.asalto && state.asalto > n) state.asalto = null;
+  }
+
+  $('modo').addEventListener('click', e => {
+    const b = e.target.closest('button[data-modo]'); if (!b) return;
+    state.modo = b.dataset.modo;
+    if (state.modo === 'PTS') { state.gana = null; state.asalto = null; }
+    if (!MODOS[state.modo].asalto) state.asalto = null;
+    render(); save();
+  });
+  $('gana').addEventListener('click', e => {
+    const b = e.target.closest('button[data-gana]'); if (!b) return;
+    state.gana = state.gana === b.dataset.gana ? null : b.dataset.gana; render(); save();
+  });
+  $('asalto').addEventListener('click', e => {
+    const b = e.target.closest('button[data-asalto]'); if (!b) return;
+    const n = +b.dataset.asalto; state.asalto = state.asalto === n ? null : n; render(); save();
+  });
+
+  function nombreDe(side) { return $('nombre-' + side).value.trim() || (side === 'r' ? 'Esquina roja' : 'Esquina azul'); }
+
+  function render() {
+    // Result mode UI
+    const m = MODOS[state.modo];
+    document.querySelectorAll('#nasaltos button').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.n === state.rounds)));
+    document.querySelectorAll('#modo button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.modo === state.modo)));
+    document.querySelectorAll('#gana button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.gana === state.gana)));
+    document.querySelectorAll('#asalto button').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.asalto === state.asalto)));
+    $('modo-sub').hidden = state.modo === 'PTS';
+    $('asalto-field').hidden = !m.asalto;
+    $('modo-hint').textContent = m.hint;
+    document.querySelector('.rounds').classList.toggle('off', state.modo === 'WO');
+
+    for (const side of ['r', 'a']) for (let i = 0; i < state.rounds; i++) for (const s of SCORES)
+      $('s-' + side + '-' + i + '-' + s).setAttribute('aria-pressed', String(state[side][i] === s));
+
+    const sum = side => state[side].reduce((t, v) => t + (v || 0), 0);
+    const tr = sum('r'), ta = sum('a');
+    const done = state.r.every(v => v) && state.a.every(v => v);
+    $('n-r').textContent = tr; $('n-a').textContent = ta;
+    $('d-r').textContent = state.r.map(v => v ?? '–').join(' + ');
+    $('d-a').textContent = state.a.map(v => v ?? '–').join(' + ');
+    $('who-r').textContent = $('nombre-r').value.trim() || 'Rojo';
+    $('who-a').textContent = $('nombre-a').value.trim() || 'Azul';
+
+    const v = $('verdict');
+    if (state.modo !== 'PTS') {
+      $('tot-r').classList.toggle('gana', state.gana === 'r');
+      $('tot-a').classList.toggle('gana', state.gana === 'a');
+      if (!state.gana) {
+        v.className = 'verdict pend'; v.textContent = 'Selecciona la esquina ganadora por ' + m.corto + '.';
+      } else if (m.asalto && !state.asalto) {
+        v.className = 'verdict pend'; v.textContent = 'Indica en qué asalto terminó el combate.';
+      } else {
+        v.className = 'verdict ' + (state.gana === 'r' ? 'rojo' : 'azul');
+        v.textContent = 'Gana esquina ' + (state.gana === 'r' ? 'roja' : 'azul') + ' por ' + m.corto + (m.asalto ? ' en el asalto ' + state.asalto : '') + ' · ' + nombreDe(state.gana);
+      }
+      return;
+    }
+    $('tot-r').classList.toggle('gana', done && tr > ta);
+    $('tot-a').classList.toggle('gana', done && ta > tr);
+    if (!done) {
+      const faltan = state.rounds - Math.min(state.r.filter(Boolean).length, state.a.filter(Boolean).length);
+      v.className = 'verdict pend';
+      v.textContent = faltan === state.rounds && tr + ta === 0 ? 'Califica los ' + state.rounds + ' asaltos para ver el resultado.' : 'Faltan asaltos por calificar.';
+    } else if (tr === ta) {
+      v.className = 'verdict empate'; v.textContent = 'Empate ' + tr + ' – ' + ta;
+    } else {
+      const w = tr > ta ? 'r' : 'a';
+      v.className = 'verdict ' + (w === 'r' ? 'rojo' : 'azul');
+      v.textContent = 'Gana esquina ' + (w === 'r' ? 'roja' : 'azul') + ' · ' + ($('nombre-' + w).value.trim() || (w === 'r' ? 'Esquina roja' : 'Esquina azul')) + ' ' + Math.max(tr, ta) + ' – ' + Math.min(tr, ta);
+    }
+  }
+
+  function resumen() {
+    const n = id => $(id).value.trim();
+    const linea = (side, lbl) => {
+      const nom = n('nombre-' + side) || ('Esquina ' + (lbl === 'Rojo' ? 'roja' : 'azul')), lug = n('lugar-' + side);
+      return lbl.toUpperCase() + ': ' + nom + (lug ? ' (' + lug + ')' : '') + ' — ' +
+        state[side].map((v, i) => 'A' + (i + 1) + ': ' + (v ?? '–')).join(', ') +
+        ' — Total: ' + state[side].reduce((t, v) => t + (v || 0), 0);
+    };
+    const m = MODOS[state.modo];
+    const out = ['TARJETA DE JUEZ' + (n('juez') ? ' — ' + n('juez') : '') + (n('combate') ? ' — Combate ' + n('combate') : '')];
+    if (state.modo !== 'WO') out.push(linea('r', 'Rojo'), linea('a', 'Azul'));
+    else out.push('ROJO: ' + nombreDe('r') + (n('lugar-r') ? ' (' + n('lugar-r') + ')' : ''), 'AZUL: ' + nombreDe('a') + (n('lugar-a') ? ' (' + n('lugar-a') + ')' : ''));
+    out.push('Forma de resultado: ' + m.nombre + ' (' + m.corto + ')' + (m.asalto && state.asalto ? ', asalto ' + state.asalto : ''));
+    out.push($('verdict').textContent);
+    return out.join('\n');
+  }
+
+  async function compartir(texto, toastId) {
+    if (navigator.share) {
+      try { await navigator.share({ text: texto }); return; }
+      catch (e) { if (e && e.name === 'AbortError') return; }
+    }
+    try { window.open('https://wa.me/?text=' + encodeURIComponent(texto), '_blank', 'noopener'); }
+    catch (e) { toast('No se pudo abrir la ventana para compartir.', toastId); }
+  }
+
+  $('copiar').addEventListener('click', async () => {
+    const t = resumen();
+    try { await navigator.clipboard.writeText(t); toast('Resultado copiado.'); }
+    catch (e) { toast('No se pudo copiar automáticamente. Selecciona y copia el texto: ' + t); }
+  });
+  $('compartir').addEventListener('click', () => compartir(resumen(), 'toast'));
+  $('nuevo').addEventListener('click', () => {
+    state.r = Array(state.rounds).fill(null); state.a = Array(state.rounds).fill(null);
+    state.modo = 'PTS'; state.gana = null; state.asalto = null;
+    ['nombre-r', 'lugar-r', 'nombre-a', 'lugar-a'].forEach(id => $(id).value = '');
+    const c = parseInt($('combate').value, 10); if (!isNaN(c)) $('combate').value = String(c + 1);
+    render(); save(); toast('Tarjeta en blanco. Se conserva el juez y pasa al siguiente combate.');
+  });
+  const timers = {};
+  function toast(m, id = 'toast') { $(id).textContent = m; clearTimeout(timers[id]); timers[id] = setTimeout(() => $(id).textContent = '', 5000); }
+
+  // ---------- Conexión con la mesa de control ----------
+  // Dos modos: dentro de claude.ai usa la base de datos compartida del artefacto;
+  // fuera (versión pública, sin cuenta) usa un canal en vivo por código de evento (ntfy.sh).
+  let backend = null, desuscribir = null, tarjetas = [], conexion = 'nulo';
+  const fmtHora = ts => new Date(ts).toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+
+  function setEstado(cls, txt) { const est = $('estado'); est.className = 'estado' + (cls ? ' ' + cls : ''); est.textContent = txt; }
+  function recibir(lista) { tarjetas = lista; renderMesa(); }
+
+  function backendClaude(db) {
+    return {
+      enviar: t => db.collection('tarjetas').add(t),
+      anular: id => db.collection('tarjetas').doc(id).delete(),
+      escuchar: () => db.collection('tarjetas').orderBy('ts', 'desc').limit(1000).onSnapshot(
+        snap => recibir(snap.docs.map(d => Object.assign({ id: d.id }, d.data()))),
+        () => { setEstado('err', 'Desconectado'); toast('Se perdió la conexión en vivo. Recarga la página.', 'toast-mesa'); }
+      )
+    };
+  }
+
+  function backendEvento(codigo) {
+    const topic = 'tarjeta-lobo-' + codigo.toLowerCase();
+    const urlPub = 'https://ntfy.sh/' + topic;
+    const CK = KEY + ':evento:' + codigo;
+    const docs = new Map(), anuladas = new Set();
+    try {
+      const c = JSON.parse(localStorage.getItem(CK) || 'null');
+      if (c) { (c.t || []).forEach(t => t && t.id && docs.set(t.id, t)); (c.x || []).forEach(id => anuladas.add(id)); }
+    } catch (e) {}
+    function persistir() { try { localStorage.setItem(CK, JSON.stringify({ t: [...docs.values()], x: [...anuladas] })); } catch (e) {} }
+    function emitir() { recibir([...docs.values()].filter(t => !anuladas.has(t.id)).sort((a, b) => (b.ts || 0) - (a.ts || 0))); }
+    function absorber(texto) {
+      let m; try { m = JSON.parse(texto); } catch (e) { return; }
+      if (m && m.tipo === 'anular' && m.id) anuladas.add(m.id);
+      else if (m && m.tipo === 'tarjeta' && m.id) docs.set(m.id, m);
+      else return;
+      persistir(); emitir();
+    }
+    async function publicar(obj) {
+      const res = await fetch(urlPub, { method: 'POST', body: JSON.stringify(obj) });
+      if (!res.ok) throw new Error('ntfy ' + res.status);
+      absorber(JSON.stringify(obj));
+    }
+    return {
+      enviar: t => publicar(Object.assign({ tipo: 'tarjeta', id: (self.crypto && crypto.randomUUID) ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).slice(2) }, t)),
+      anular: id => publicar({ tipo: 'anular', id }),
+      escuchar: () => {
+        emitir();
+        const es = new EventSource('https://ntfy.sh/' + topic + '/sse?since=all');
+        es.onopen = () => setEstado('ok', 'En vivo · ' + codigo);
+        es.onerror = () => setEstado('err', 'Reconectando…');
+        es.onmessage = ev => { try { const d = JSON.parse(ev.data); if (d && typeof d.message === 'string') absorber(d.message); } catch (e) {} };
+        return () => es.close();
+      }
+    };
+  }
+
+  function codigoLimpio() { return $('codigo').value.trim().toUpperCase().replace(/[^A-Z0-9-]/g, ''); }
+  function conectarEvento() {
+    if (desuscribir) { desuscribir(); desuscribir = null; }
+    backend = null; tarjetas = [];
+    const codigo = codigoLimpio();
+    $('codigo').value = codigo;
+    try { localStorage.setItem(KEY + ':codigo', codigo); } catch (e) {}
+    if (!codigo) { setEstado('err', 'Sin código de evento'); renderMesa(); return; }
+    backend = backendEvento(codigo);
+    setEstado('', 'Conectando…');
+    desuscribir = backend.escuchar();
+  }
+  $('codigo').addEventListener('change', conectarEvento);
+  $('gen-codigo').addEventListener('click', () => {
+    const abc = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let s = ''; for (let i = 0; i < 4; i++) s += abc[Math.floor(Math.random() * abc.length)];
+    $('codigo').value = 'LOBO-' + s;
+    conectarEvento();
+    toast('Código creado. Compártelo con los demás jueces y la mesa de control.');
+  });
+
+  function tarjetaActual() {
+    const m = MODOS[state.modo], n = id => $(id).value.trim();
+    const tr = state.r.reduce((t, v) => t + (v || 0), 0), ta = state.a.reduce((t, v) => t + (v || 0), 0);
+    let ganador = null;
+    if (state.modo === 'PTS') { const done = state.r.every(Boolean) && state.a.every(Boolean); if (done) ganador = tr > ta ? 'r' : ta > tr ? 'a' : 'empate'; }
+    else ganador = state.gana;
+    return {
+      ts: Date.now(), juez: n('juez'), combate: n('combate'), rounds: state.rounds,
+      rojo: { nombre: n('nombre-r'), lugar: n('lugar-r'), asaltos: state.r.slice(), total: tr },
+      azul: { nombre: n('nombre-a'), lugar: n('lugar-a'), asaltos: state.a.slice(), total: ta },
+      modo: state.modo, asalto: state.asalto, ganador
+    };
+  }
+  function validar(t) {
+    if (!t.juez) return 'Escribe el nombre del juez antes de enviar.';
+    if (!t.combate) return 'Escribe el número del combate antes de enviar.';
+    if (!t.ganador) return t.modo === 'PTS' ? 'Faltan asaltos por calificar.' : 'Falta indicar la esquina ganadora.';
+    if (MODOS[t.modo].asalto && !t.asalto) return 'Falta indicar en qué asalto terminó el combate.';
+    return null;
+  }
+
+  $('enviar').addEventListener('click', async () => {
+    const t = tarjetaActual(), err = validar(t);
+    if (err) { toast(err); return; }
+    if (!backend) {
+      toast(conexion === 'evento' ? 'Escribe o genera el código del evento (arriba) para conectarte con la mesa de control.' : 'Sin conexión con la mesa de control. Usa "Copiar resultado" y envíalo por otro medio.');
+      return;
+    }
+    const b = $('enviar'); b.disabled = true; b.textContent = 'Enviando…';
+    try {
+      await backend.enviar(t);
+      toast('Tarjeta enviada a la mesa de control (combate ' + t.combate + ', juez ' + t.juez + ').');
+    } catch (e) {
+      toast(e && e.code === 'quota_exceeded' ? 'La base de datos está llena: borra tarjetas viejas en la mesa de control.' : 'No se pudo enviar. Revisa la conexión e inténtalo de nuevo.');
+    } finally { b.disabled = false; b.textContent = 'Enviar tarjeta'; }
+  });
+
+  // Cambio de vista
+  document.querySelectorAll('.tabbar button').forEach(b => b.addEventListener('click', () => setVista(b.dataset.vista)));
+  function setVista(v) {
+    document.querySelectorAll('.tabbar button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.vista === v)));
+    $('pane-juez').hidden = v !== 'juez'; $('pane-mesa').hidden = v !== 'mesa';
+    $('appbar-title').textContent = v === 'mesa' ? 'Mesa de control' : 'Tarjeta de juez';
+    window.scrollTo(0, 0);
+    try { localStorage.setItem(KEY + ':vista', v); } catch (e) {}
+  }
+
+  function textoResultado(t) {
+    const m = MODOS[t.modo] || MODOS.PTS;
+    if (t.modo === 'PTS') return t.rojo.total + ' – ' + t.azul.total;
+    return m.corto + (m.asalto && t.asalto ? ' A' + t.asalto : '');
+  }
+  const nombreG = (t, g) => g === 'empate' ? 'Empate' : g === 'r' ? (t.rojo.nombre || 'Rojo') : (t.azul.nombre || 'Azul');
+
+  function consolidado(lista) {
+    const c = { r: 0, a: 0, empate: 0 };
+    lista.forEach(t => { if (c[t.ganador] != null) c[t.ganador]++; });
+    const noPts = lista.find(t => t.modo !== 'PTS' && t.ganador && t.ganador !== 'empate');
+    if (noPts) return { cls: noPts.ganador === 'r' ? 'rojo' : 'azul', txt: 'Gana esquina ' + (noPts.ganador === 'r' ? 'roja' : 'azul') + ' por ' + textoResultado(noPts) };
+    if (c.r > c.a) return { cls: 'rojo', txt: 'Gana esquina roja ' + c.r + '–' + c.a + (c.empate ? ' (' + c.empate + ' empate)' : '') };
+    if (c.a > c.r) return { cls: 'azul', txt: 'Gana esquina azul ' + c.a + '–' + c.r + (c.empate ? ' (' + c.empate + ' empate)' : '') };
+    return { cls: 'empate', txt: lista.length ? 'Empate ' + c.r + '–' + c.a : '' };
+  }
+
+  function grupos() {
+    const g = new Map();
+    tarjetas.forEach(t => { const k = t.combate || '?'; if (!g.has(k)) g.set(k, []); g.get(k).push(t); });
+    return [...g.entries()].sort((x, y) => { const a = parseFloat(x[0]), b = parseFloat(y[0]); return (isNaN(b) ? -1 : b) - (isNaN(a) ? -1 : a); });
+  }
+  const esc = s => String(s ?? '').replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+
+  function renderMesa() {
+    $('badge').textContent = tarjetas.length; $('badge').hidden = tarjetas.length === 0;
+    const box = $('mesa');
+    if (!tarjetas.length) {
+      let msg = 'Todavía no ha llegado ninguna tarjeta. Cuando un juez toque "Enviar tarjeta", aparecerá aquí al instante.';
+      if (conexion === 'evento' && !backend) msg = 'Escribe o genera un código de evento (arriba) y compártelo con todos los jueces: sus tarjetas aparecerán aquí al instante.';
+      if (conexion === 'nulo') msg = 'No hay conexión con la mesa de control compartida. La tarjeta sigue funcionando y puedes copiar o compartir el resultado.';
+      box.innerHTML = '<div class="empty"><img src="assets/lobo.png" alt=""><div>' + msg + '</div></div>';
+      return;
+    }
+    box.innerHTML = grupos().map(([k, lista]) => {
+      const p = lista[0], cons = consolidado(lista);
+      const filas = lista.map(t => {
+        const g = t.ganador, gcls = g === 'r' ? 'rojo' : g === 'a' ? 'azul' : 'empate';
+        const det = t.modo === 'PTS' ? '<span class="sub">R: ' + t.rojo.asaltos.map(v => v ?? '–').join('+') + ' · A: ' + t.azul.asaltos.map(v => v ?? '–').join('+') + '</span>' : '<span class="sub">' + esc((MODOS[t.modo] || {}).nombre || '') + '</span>';
+        return '<tr><td><strong>' + esc(t.juez || 'Sin nombre') + '</strong><span class="sub">' + fmtHora(t.ts) + '</span></td>' +
+          '<td class="num">' + (t.modo === 'PTS' ? '<span class="cr">' + t.rojo.total + '</span> – <span class="ca">' + t.azul.total + '</span>' : esc(textoResultado(t))) + det + '</td>' +
+          '<td><span class="pill ' + gcls + '">' + esc(nombreG(t, g)) + '</span></td>' +
+          '<td><button type="button" class="del" data-id="' + esc(t.id) + '" aria-label="Eliminar tarjeta">✕</button></td></tr>';
+      }).join('');
+      return '<section class="fight"><div class="fight-head"><div class="fn"><small>Combate</small>' + esc(k) + ' <small style="margin-left:8px">' + lista.length + (lista.length === 1 ? ' tarjeta' : ' tarjetas') + '</small></div><div class="cons ' + cons.cls + '">' + esc(cons.txt) + '</div></div>' +
+        '<div class="boxers"><div class="bx r">' + esc(p.rojo.nombre || 'Esquina roja') + '<small>' + esc(p.rojo.lugar || '') + '</small></div><div class="vs">VS</div><div class="bx a">' + esc(p.azul.nombre || 'Esquina azul') + '<small>' + esc(p.azul.lugar || '') + '</small></div></div>' +
+        '<div class="tw"><table class="tabla"><thead><tr><th>Juez</th><th>Puntaje</th><th>Gana</th><th></th></tr></thead><tbody>' + filas + '</tbody></table></div></section>';
+    }).join('');
+  }
+
+  $('mesa').addEventListener('click', async e => {
+    const b = e.target.closest('button.del'); if (!b) return;
+    if (!b.classList.contains('arm')) { b.classList.add('arm'); b.textContent = '¿Borrar?'; setTimeout(() => { b.classList.remove('arm'); b.textContent = '✕'; }, 3000); return; }
+    if (!backend) { toast('Sin conexión con la mesa de control.', 'toast-mesa'); return; }
+    try { await backend.anular(b.dataset.id); toast('Tarjeta eliminada.', 'toast-mesa'); }
+    catch (err) { toast('No se pudo eliminar la tarjeta.', 'toast-mesa'); }
+  });
+
+  function resumenMesa() {
+    return grupos().map(([k, lista]) => {
+      const p = lista[0], cons = consolidado(lista);
+      return ['COMBATE ' + k + ': ' + (p.rojo.nombre || 'Rojo') + (p.rojo.lugar ? ' (' + p.rojo.lugar + ')' : '') + ' vs ' + (p.azul.nombre || 'Azul') + (p.azul.lugar ? ' (' + p.azul.lugar + ')' : '')]
+        .concat(lista.map(t => '  - ' + (t.juez || 'Sin nombre') + ': ' + textoResultado(t) + ' → ' + nombreG(t, t.ganador)))
+        .concat(['  Resultado: ' + cons.txt]).join('\n');
+    }).join('\n\n');
+  }
+  $('copiar-mesa').addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(resumenMesa()); toast('Resumen copiado.', 'toast-mesa'); } catch (e) { toast('No se pudo copiar automáticamente.', 'toast-mesa'); }
+  });
+  $('compartir-mesa').addEventListener('click', () => compartir(resumenMesa(), 'toast-mesa'));
+
+  (async () => {
+    const enClaude = !!(window.claude && window.claude.use);
+    let db = null;
+    if (enClaude) { try { db = await window.claude.use('db'); } catch (e) { db = null; } }
+    if (db) {
+      conexion = 'claude';
+      backend = backendClaude(db);
+      setEstado('ok', 'En vivo');
+      desuscribir = backend.escuchar();
+    } else if (enClaude) {
+      conexion = 'nulo';
+      setEstado('err', 'Sin conexión');
+      renderMesa();
+    } else {
+      conexion = 'evento';
+      $('evento-card').hidden = false;
+      try { const c = localStorage.getItem(KEY + ':codigo'); if (c) $('codigo').value = c; } catch (e) {}
+      conectarEvento();
+    }
+  })();
+
+  function save() {
+    try {
+      const o = { state, f: {} }; fields.forEach(id => o.f[id] = $(id).value);
+      localStorage.setItem(KEY, JSON.stringify(o));
+    } catch (e) {}
+  }
+  function load() {
+    try {
+      const o = JSON.parse(localStorage.getItem(KEY) || 'null');
+      if (!o) return;
+      if (o.state) {
+        const n = [3, 4, 5].includes(o.state.rounds) ? o.state.rounds : 3;
+        state.rounds = n;
+        for (const side of ['r', 'a']) {
+          const arr = Array.isArray(o.state[side]) ? o.state[side].slice(0, n) : [];
+          while (arr.length < n) arr.push(null);
+          state[side] = arr.map(v => SCORES.includes(v) ? v : null);
+        }
+        if (MODOS[o.state.modo]) state.modo = o.state.modo;
+        state.gana = o.state.gana === 'r' || o.state.gana === 'a' ? o.state.gana : null;
+        state.asalto = Number.isInteger(o.state.asalto) && o.state.asalto >= 1 && o.state.asalto <= n ? o.state.asalto : null;
+      }
+      if (o.f) fields.forEach(id => { if (o.f[id] != null) $(id).value = o.f[id]; });
+    } catch (e) {}
+  }
+  load(); buildRounds(); render(); renderMesa();
+  try { const v = localStorage.getItem(KEY + ':vista'); if (v === 'mesa') setVista('mesa'); } catch (e) {}
+
+  // App instalable (PWA): el registro falla en silencio donde no aplica
+  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+})();
+</script>
+<!-- ARTIFACT-END -->
+</body>
+</html>
