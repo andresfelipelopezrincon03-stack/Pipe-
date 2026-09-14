@@ -737,7 +737,18 @@
 
   // ---------- Avance en vivo: la mesa ve lo que cada juez va marcando ----------
   let avances = [], avTimer = null;
+  const avDescartes = new Map(); // avances ocultados a mano en esta mesa
   function recibirAvances(lista) { avances = lista; renderMesa(); }
+
+  // La confirmación de borrado vive fuera del DOM: la mesa se redibuja con
+  // cada avance en vivo y un estado guardado en el botón no sobreviviría.
+  let armado = { key: null, hasta: 0 };
+  const armadoActivo = key => armado.key === key && Date.now() < armado.hasta;
+  function armar(key, boton, texto, redibujar) {
+    armado = { key, hasta: Date.now() + 4000 };
+    boton.classList.add('arm'); boton.textContent = texto;
+    setTimeout(() => { if (armado.key === key && Date.now() >= armado.hasta) { armado = { key: null, hasta: 0 }; redibujar(); } }, 4200);
+  }
 
   function avanceActual() {
     const n = id => $(id).value.trim();
@@ -760,7 +771,10 @@
   }
 
   function avancesVisibles() {
+    const lim = Date.now() - 45 * 60000; // un avance sin actividad en 45 min ya no es "en vivo"
     return avances.filter(av =>
+      (av.ts || 0) > lim &&
+      !((avDescartes.get(av.clave) || 0) >= (av.ts || 0)) &&
       !tarjetas.some(t =>
         String(t.combate || '') === String(av.combate || '') &&
         (t.juez || '').trim().toLowerCase() === (av.juez || '').trim().toLowerCase() &&
@@ -821,7 +835,7 @@
       '<span class="ptxt"><span class="r">' + esc((c.rojo && c.rojo.nombre) || '¿?') + '</span>' + (c.rojo && c.rojo.lugar ? ' (' + esc(c.rojo.lugar) + ')' : '') +
       ' vs <span class="a">' + esc((c.azul && c.azul.nombre) || '¿?') + '</span>' + (c.azul && c.azul.lugar ? ' (' + esc(c.azul.lugar) + ')' : '') +
       (c.peso ? '<small>' + esc(c.peso) + ' kg</small>' : '') + '</span>' +
-      '<button type="button" class="del" data-id="' + esc(c.id) + '" aria-label="Quitar combate">✕</button></div>'
+      '<button type="button" class="del' + (armadoActivo('c:' + c.id) ? ' arm' : '') + '" data-id="' + esc(c.id) + '" aria-label="Quitar combate">' + (armadoActivo('c:' + c.id) ? '¿Quitar?' : '✕') + '</button></div>'
     ).join('') : '<div class="hint">Todavía no hay combates programados. Agrégalos aquí en el orden de la velada: los jueces los verán al instante.</div>';
     if (!$('pc-num').value.trim()) {
       const usados = programa.map(c => parseInt(c.num, 10)).filter(n => !isNaN(n));
@@ -867,7 +881,9 @@
 
   $('prog-lista').addEventListener('click', async e => {
     const b = e.target.closest('button.del'); if (!b) return;
-    if (!b.classList.contains('arm')) { b.classList.add('arm'); b.textContent = '¿Quitar?'; setTimeout(() => { b.classList.remove('arm'); b.textContent = '✕'; }, 3000); return; }
+    const key = 'c:' + b.dataset.id;
+    if (!armadoActivo(key)) { armar(key, b, '¿Quitar?', renderPrograma); return; }
+    armado = { key: null, hasta: 0 };
     if (!backend || !backend.anularCombate) { toast('Sin conexión.', 'toast-prog'); return; }
     try { await backend.anularCombate(b.dataset.id); toast('Combate quitado de la programación.', 'toast-prog'); }
     catch (err) { toast('No se pudo quitar el combate.', 'toast-prog'); }
@@ -918,6 +934,7 @@
       recibirCombates([...combs.values()].filter(t => !combsX.has(t.id)));
     }
     const avs = new Map();
+    avances.forEach(av => { if (av && av.clave) avs.set(av.clave, av); }); // conserva lo ya visto al reconectar
     function emitirAv() { recibirAvances([...avs.values()]); }
     function absorber(texto) {
       let m; try { m = JSON.parse(texto); } catch (e) { return; }
@@ -959,8 +976,10 @@
   function codigoLimpio() { return $('codigo').value.trim().toUpperCase().replace(/[^A-Z0-9-]/g, ''); }
   function conectarEvento() {
     if (desuscribir) { desuscribir(); desuscribir = null; }
-    backend = null; tarjetas = []; recibirCombates([]); recibirAvances([]);
+    backend = null; tarjetas = []; recibirCombates([]);
     const codigo = codigoLimpio();
+    if (codigo !== ultCodigo) recibirAvances([]); // con el mismo código, los avances en vivo se conservan al reconectar
+    ultCodigo = codigo;
     $('codigo').value = codigo;
     try { localStorage.setItem(KEY + ':codigo', codigo); } catch (e) {}
     if (!codigo) { setEstado('err', 'Sin código de evento'); renderMesa(); return; }
@@ -968,6 +987,14 @@
     setEstado('', 'Conectando…');
     desuscribir = backend.escuchar();
   }
+  let ultCodigo = null;
+
+  // Al volver a la app o recuperar internet, la conexión en vivo puede haber
+  // muerto en silencio (pantalla bloqueada, cambio de app): reconectar siempre.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && conexion === 'evento') conectarEvento(); });
+  window.addEventListener('online', () => { if (conexion === 'evento') conectarEvento(); });
+  // Refresco periódico para expirar avances viejos aunque no llegue nada nuevo.
+  setInterval(() => { if (!document.hidden && !$('pane-mesa').hidden) renderMesa(); }, 60000);
   $('codigo').addEventListener('change', () => {
     if (conexion === 'claude') { const c = codigoLimpio(); $('codigo').value = c; if (c) guardarCodigoInvitados(c); }
     else conectarEvento();
@@ -1088,10 +1115,11 @@
       const filas = lista.map(t => {
         const g = t.ganador, gcls = g === 'r' ? 'rojo' : g === 'a' ? 'azul' : 'empate';
         const det = t.modo === 'PTS' ? '<span class="sub">R: ' + t.rojo.asaltos.map(v => v ?? '–').join('+') + ' · A: ' + t.azul.asaltos.map(v => v ?? '–').join('+') + '</span>' : '<span class="sub">' + esc((MODOS[t.modo] || {}).nombre || '') + '</span>';
+        const arm = armadoActivo('t:' + t.id);
         return '<tr><td><strong>' + esc(t.juez || 'Sin nombre') + '</strong><span class="sub">' + fmtHora(t.ts) + '</span></td>' +
           '<td class="num">' + (t.modo === 'PTS' ? '<span class="cr">' + t.rojo.total + '</span> – <span class="ca">' + t.azul.total + '</span>' : esc(textoResultado(t))) + det + '</td>' +
           '<td><span class="pill ' + gcls + '">' + esc(nombreG(t, g)) + '</span></td>' +
-          '<td><button type="button" class="del" data-id="' + esc(t.id) + '" aria-label="Eliminar tarjeta">✕</button></td></tr>';
+          '<td><button type="button" class="del' + (arm ? ' arm' : '') + '" data-id="' + esc(t.id) + '" aria-label="Eliminar tarjeta">' + (arm ? '¿Borrar?' : '✕') + '</button></td></tr>';
       }).join('');
       const stop = lista.find(t => t.modo !== 'PTS' && t.ganador && t.ganador !== 'empate');
       let banner = '';
@@ -1123,7 +1151,8 @@
     const modoTxt = av.modo && av.modo !== 'PTS' && MODOS[av.modo] ? ' · ' + MODOS[av.modo].corto : '';
     return '<div class="viva"><span class="ldot" aria-hidden="true"></span><span class="vj">' + esc(av.juez || 'Sin nombre') + '</span>' +
       '<span class="vr">' + det.join(' · ') + esc(modoTxt) + '</span>' +
-      '<span class="vt"><span class="cr">' + suma(rs) + '</span>–<span class="ca">' + suma(as2) + '</span></span></div>';
+      '<span class="vt"><span class="cr">' + suma(rs) + '</span>–<span class="ca">' + suma(as2) + '</span></span>' +
+      '<button type="button" class="del avx" data-clave="' + esc(av.clave || '') + '" data-ts="' + (av.ts || 0) + '" aria-label="Ocultar este avance">✕</button></div>';
   }
 
   function proyectar(d) {
@@ -1146,8 +1175,12 @@
   $('mesa').addEventListener('click', async e => {
     const pj = e.target.closest('button.proj');
     if (pj) { proyectar(pj.dataset); return; }
+    const ax = e.target.closest('button.avx');
+    if (ax) { avDescartes.set(ax.dataset.clave, +ax.dataset.ts || Date.now()); renderMesa(); return; }
     const b = e.target.closest('button.del'); if (!b) return;
-    if (!b.classList.contains('arm')) { b.classList.add('arm'); b.textContent = '¿Borrar?'; setTimeout(() => { b.classList.remove('arm'); b.textContent = '✕'; }, 3000); return; }
+    const key = 't:' + b.dataset.id;
+    if (!armadoActivo(key)) { armar(key, b, '¿Borrar?', renderMesa); return; }
+    armado = { key: null, hasta: 0 };
     if (!backend) { toast('Sin conexión con la mesa de control.', 'toast-mesa'); return; }
     try { await backend.anular(b.dataset.id); toast('Tarjeta eliminada.', 'toast-mesa'); }
     catch (err) { toast('No se pudo eliminar la tarjeta.', 'toast-mesa'); }
