@@ -1,0 +1,41 @@
+== POST binario sin content-type, con Origin
+HTTP/2 200 
+server: nginx
+date: Sun, 04 Oct 2026 03:28:57 GMT
+content-type: application/json
+content-length: 319
+access-control-allow-origin: *
+
+{"id":"JprVRT7h0MEU","time":1791084537,"expires":1791127737,"event":"message","topic":"liboxcund-prueba-1810832619","message":"You received a file: attachment.bin","attachment":{"name":"attachment.bin","type":"application/octet-stream","size":200000,"expires":1791095337,"url":"https://ntfy.sh/file/JprVRT7h0MEU.bin"}}
+== URL adjunto: https://ntfy.sh/file/JprVRT7h0MEU.bin
+== GET adjunto con Origin
+HTTP/2 200 
+server: nginx
+date: Sun, 04 Oct 2026 03:28:59 GMT
+content-type: application/octet-stream
+content-length: 200000
+access-control-allow-origin: *
+content-disposition: attachment; filename="attachment.bin"
+
+IGUALES
+== poll
+{"id":"JprVRT7h0MEU","time":1791084537,"expires":1791127737,"event":"message","topic":"liboxcund-prueba-1810832619","message":"You received a file: attachment.bin","attachment":{"name":"attachment.bin","type":"application/octet-stream","size":200000,"expires":1791095337,"url":"https://ntfy.sh/file/JprVRT7h0MEU.bin"}}
+
+== OPTIONS preflight
+HTTP/2 200 
+server: nginx
+date: Sun, 04 Oct 2026 03:28:59 GMT
+content-length: 0
+access-control-allow-headers: *
+access-control-allow-methods: GET, PUT, POST, PATCH, DELETE
+access-control-allow-origin: *
+
+== POST texto
+HTTP/2 200 
+server: nginx
+date: Sun, 04 Oct 2026 03:28:59 GMT
+content-type: application/json
+content-length: 139
+access-control-allow-origin: *
+
+{"id":"Ft63bnA1Bke1","time":1791084539,"expires":1791127739,"event":"message","topic":"liboxcund-prueba-1810832619","message":"{\"v\":1}"}
