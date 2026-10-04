@@ -2,12 +2,15 @@ name: Prueba de envio
 on:
   push:
     branches: [prueba-envio]
+permissions:
+  contents: write
 jobs:
   prueba:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - run: |
+          exec > resultado.txt 2>&1
           T=liboxcund-prueba-$RANDOM$RANDOM
           head -c 200000 /dev/urandom > f.bin
           echo "== POST binario sin content-type, con Origin"
@@ -23,3 +26,7 @@ jobs:
           curl -sS -i -X OPTIONS -H "Origin: https://x.github.io" -H "Access-Control-Request-Method: POST" -H "Access-Control-Request-Headers: content-type" "https://ntfy.sh/$T" | head -20
           echo "== POST texto"
           curl -sS -i -X POST -H "Origin: https://x.github.io" -d '{"v":1}' "https://ntfy.sh/$T" | head -30
+      - if: always()
+        run: |
+          mkdir r && cp resultado.txt r/ && cd r && git init -q && git checkout -q -b prueba-resultado && git add . && git -c user.name=bot -c user.email=bot@x commit -q -m resultado
+          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" prueba-resultado
