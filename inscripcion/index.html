@@ -137,7 +137,7 @@ a{color:var(--blue)}footer a{color:var(--yellow)}
   <section class="card" id="formCard">
     <form id="f" novalidate>
       <h2 class="anton">Datos del boxeador</h2>
-      <p class="lead">Llena los datos y toca Enviar. Una inscripción por deportista.</p>
+      <p class="lead"><b>Todos los campos son obligatorios.</b> Una inscripción por deportista.</p>
 
       <div class="field">
         <label class="l cond" for="nombre">Nombre y apellido</label>
@@ -188,7 +188,7 @@ a{color:var(--blue)}footer a{color:var(--yellow)}
       <div class="field" id="pagoBox">
         <label class="l cond" for="soporte">Soporte de pago</label>
         <input type="file" id="soporte" name="soporte" accept="image/*" aria-describedby="h-soporte">
-        <span class="hint" id="h-soporte">Adjunta la foto o el pantallazo del comprobante.</span>
+        <span class="hint" id="h-soporte">Obligatorio: adjunta la foto o el pantallazo del comprobante. Solo se puede omitir si el pago es en efectivo.</span>
         <label class="check" style="margin:14px 0 0"><input type="checkbox" id="efectivo">
           <span><b>Pago en efectivo.</b> Marca aquí si pagas en efectivo; no necesitas adjuntar soporte.</span></label>
         <div class="err" id="e-soporte">Adjunta el soporte de pago o marca "Pago en efectivo".</div>
