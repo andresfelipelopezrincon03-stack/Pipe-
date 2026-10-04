@@ -1,0 +1,25 @@
+name: Prueba de envio
+on:
+  push:
+    branches: [prueba-envio]
+jobs:
+  prueba:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - run: |
+          T=liboxcund-prueba-$RANDOM$RANDOM
+          head -c 200000 /dev/urandom > f.bin
+          echo "== POST binario sin content-type, con Origin"
+          curl -sS -i -X POST -H "Origin: https://andresfelipelopezrincon03-stack.github.io" -H "Content-Type:" --data-binary @f.bin "https://ntfy.sh/$T" | tee r1.txt | head -40
+          URL=$(grep -o '"url":"[^"]*"' r1.txt | head -1 | cut -d'"' -f4)
+          echo "== URL adjunto: $URL"
+          echo "== GET adjunto con Origin"
+          curl -sS -D - -o g.bin -H "Origin: https://andresfelipelopezrincon03-stack.github.io" "$URL" | head -20
+          cmp f.bin g.bin && echo IGUALES
+          echo "== poll"
+          curl -sS "https://ntfy.sh/$T/json?poll=1&since=12h" | head -c 1500
+          echo; echo "== OPTIONS preflight"
+          curl -sS -i -X OPTIONS -H "Origin: https://x.github.io" -H "Access-Control-Request-Method: POST" -H "Access-Control-Request-Headers: content-type" "https://ntfy.sh/$T" | head -20
+          echo "== POST texto"
+          curl -sS -i -X POST -H "Origin: https://x.github.io" -d '{"v":1}' "https://ntfy.sh/$T" | head -30
