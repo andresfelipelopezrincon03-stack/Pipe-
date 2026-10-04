@@ -47,6 +47,17 @@ main{background:#eef1f6;color:var(--ink);padding:26px 0 44px}
 .card h2{margin:0 0 4px;font-size:30px;letter-spacing:.02em;text-transform:uppercase;color:var(--navy)}
 .card p.lead{margin:0 0 20px;color:var(--muted);font-size:16px}
 .field{margin-bottom:18px}
+h3.sec{margin:26px 0 12px;padding-top:16px;border-top:2px solid var(--line);font-size:24px;letter-spacing:.03em;text-transform:uppercase;color:var(--navy)}
+input[type=file]{width:100%;padding:12px;font:inherit;font-size:16px;color:var(--ink);background:#f4f6fa;border:2px dashed #8b96ad;border-radius:5px}
+input[type=file]:focus-visible{border-color:var(--blue);outline:none;box-shadow:0 0 0 3px rgba(28,127,214,.3)}
+input[type=file].bad{border-color:var(--err)}
+input[type=file]:disabled{opacity:.45}
+dialog{border:0;border-radius:6px;padding:16px;max-width:min(92vw,720px);color:var(--ink)}
+dialog::backdrop{background:rgba(4,10,26,.75)}
+dialog img{display:block;max-width:100%;max-height:70vh;margin:0 auto 12px}
+.dlgbar{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.dlgbar .btn2{margin-top:0;text-decoration:none}
+.ver{border:0;background:none;color:#0b5cab;font-weight:700;text-decoration:underline;padding:6px 0;min-height:32px}
 label.l{display:block;font-weight:700;font-size:17px;letter-spacing:.09em;text-transform:uppercase;margin-bottom:6px;color:var(--navy)}
 .hint{display:block;font-size:14.5px;color:var(--muted);margin-top:5px}
 input[type=text],input[type=number],input[type=search]{width:100%;height:54px;padding:0 14px;font:inherit;font-size:18px;color:var(--ink);background:#fff;border:2px solid #8b96ad;border-radius:5px;outline:none;appearance:none;-moz-appearance:textfield}
@@ -88,14 +99,14 @@ button{font:inherit;cursor:pointer}
 .tools .btn2{margin-top:0}
 .count{font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:17px;color:var(--muted);margin-bottom:8px}
 .tw{overflow-x:auto;border:2px solid var(--line);border-radius:5px;background:#fff}
-table{border-collapse:collapse;width:100%;min-width:640px;font-size:15.5px}
+table{border-collapse:collapse;width:100%;min-width:1060px;font-size:15.5px}
 th{background:var(--navy);color:#fff;text-align:left;padding:10px 12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:15px;white-space:nowrap}
 td{padding:10px 12px;border-top:1px solid var(--line);vertical-align:top}
 td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
 .del{border:0;background:none;color:var(--err);font-weight:700;text-decoration:underline;padding:6px 0;min-height:32px}
 .empty{padding:26px 12px;text-align:center;color:var(--muted)}
 td.rep{color:var(--err);font-weight:700}
-.acard{max-width:980px}
+.acard{max-width:1040px}
 
 footer{background:var(--navy);padding:20px 0 26px;font-size:14.5px;color:#c7d2ea;text-align:center}
 footer img{width:74px;height:auto;display:block;margin:0 auto 8px;background:#fff;border-radius:50%;padding:3px}
@@ -126,7 +137,7 @@ a{color:var(--blue)}footer a{color:var(--yellow)}
   <section class="card" id="formCard">
     <form id="f" novalidate>
       <h2 class="anton">Datos del boxeador</h2>
-      <p class="lead">Llena los cuatro datos y toca Enviar. Una inscripción por deportista.</p>
+      <p class="lead">Llena los datos y toca Enviar. Una inscripción por deportista.</p>
 
       <div class="field">
         <label class="l cond" for="nombre">Nombre y apellido</label>
@@ -152,6 +163,35 @@ a{color:var(--blue)}footer a{color:var(--yellow)}
         <label class="l cond" for="ciudad">Ciudad</label>
         <input type="text" id="ciudad" name="ciudad" autocomplete="address-level2" autocapitalize="words" maxlength="60" required>
         <div class="err" id="e-ciudad">Escribe la ciudad o el municipio.</div>
+      </div>
+
+      <div class="field">
+        <label class="l cond" for="tel">Teléfono del boxeador</label>
+        <input type="text" id="tel" name="tel" inputmode="tel" autocomplete="tel" maxlength="16" required aria-describedby="h-tel">
+        <span class="hint" id="h-tel">Si es menor de edad, el de su acudiente.</span>
+        <div class="err" id="e-tel">Escribe un teléfono válido (entre 7 y 12 números).</div>
+      </div>
+
+      <h3 class="anton sec">Entrenador</h3>
+      <div class="field">
+        <label class="l cond" for="ent">Nombre del entrenador</label>
+        <input type="text" id="ent" name="ent" autocapitalize="words" autocomplete="off" maxlength="80" required>
+        <div class="err" id="e-ent">Escribe el nombre del entrenador.</div>
+      </div>
+      <div class="field">
+        <label class="l cond" for="telent">Teléfono del entrenador</label>
+        <input type="text" id="telent" name="telent" inputmode="tel" autocomplete="off" maxlength="16" required>
+        <div class="err" id="e-telent">Escribe un teléfono válido (entre 7 y 12 números).</div>
+      </div>
+
+      <h3 class="anton sec">Pago</h3>
+      <div class="field" id="pagoBox">
+        <label class="l cond" for="soporte">Soporte de pago</label>
+        <input type="file" id="soporte" name="soporte" accept="image/*" aria-describedby="h-soporte">
+        <span class="hint" id="h-soporte">Adjunta la foto o el pantallazo del comprobante.</span>
+        <label class="check" style="margin:14px 0 0"><input type="checkbox" id="efectivo">
+          <span><b>Pago en efectivo.</b> Marca aquí si pagas en efectivo; no necesitas adjuntar soporte.</span></label>
+        <div class="err" id="e-soporte">Adjunta el soporte de pago o marca "Pago en efectivo".</div>
       </div>
 
       <label class="check"><input type="checkbox" id="acepto" required>
@@ -193,11 +233,15 @@ a{color:var(--blue)}footer a{color:var(--yellow)}
       </div>
       <div class="count cond" id="count"></div>
       <div class="tw"><table>
-        <thead><tr><th>#</th><th>Nombre y apellido</th><th>Peso (kg)</th><th>Documento</th><th>Ciudad</th><th>Fecha</th><th></th></tr></thead>
+        <thead><tr><th>#</th><th>Nombre y apellido</th><th>Peso (kg)</th><th>Documento</th><th>Ciudad</th><th>Tel. boxeador</th><th>Entrenador</th><th>Tel. entrenador</th><th>Pago</th><th>Fecha</th><th></th></tr></thead>
         <tbody id="rows"></tbody>
       </table><div class="empty" id="empty" style="display:none">Todavía no hay inscritos.</div></div>
     </div>
   </section>
+  <dialog id="dlg" aria-label="Soporte de pago">
+    <img id="dlgimg" alt="Soporte de pago">
+    <div class="dlgbar"><a class="btn2 cond" id="dlgdown" download>Descargar</a><button class="btn2 cond" id="dlgclose" type="button">Cerrar</button></div>
+  </dialog>
 </div>
 </main>
 
@@ -217,7 +261,8 @@ a{color:var(--blue)}footer a{color:var(--yellow)}
    ===================================================================== */
 const CANAL = "liboxcund-insc-42c38a2dd5d29d0d088e";
 const ENVIO = "https://ntfy.sh/" + CANAL;
-const DATOS = "https://raw.githubusercontent.com/andresfelipelopezrincon03-stack/Pipe-/datos-inscripciones/inscripciones.jsonl";
+const BASE = "https://raw.githubusercontent.com/andresfelipelopezrincon03-stack/Pipe-/datos-inscripciones/";
+const DATOS = BASE + "inscripciones.jsonl";
 const LLAVE_PUBLICA = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuJkfBYMmuRXbkrdqOx2wiY0phLKTo1IuYp/6V+PXOYWs5gRIsFzQT3m/jF4mM0U5RHzTubmYLYwc3X7Mu8pVtRxiRHIdzY/FL287IW2+nHtSYUvkPw+mwhfWW1pwLoHJzcMWCdQY3G7SzSegy8uhH8viDga4DRkxY4O1926cxBmb9qArjUxbcOcg/8R6auE/vXPu7yaxjIE1N6EZZwQnv0Zu/PQrHT7MHpcNh7QR6tLy+JWqEOU4kuJnAszFZjH5o+Zo/16nO8O6kPXTUi8shDkdtFMU03xCmS1elA+h4QH12K8AGdZVME4wJrIf+P5QQRSACKdqrzcPoRFGYFzouQIDAQAB";
 const LLAVE_PANEL = { sal: "/vYJzp98q04RteJXsVgjcg==", iv: "xqnurjEBwHSc6IGZ", vueltas: 600000, caja: "pS4XWwommz8z51tuhSHd2OeycMghEuevXjuqDVKYz/f3we736Kvi2APxdfeId44m8hBCS0cjFkgMwIWPuvhm7rRAN+EgzMpSJ4ayPqp4hDRWH9QyWN5KBChLN2mPs4QZhs25urGxiwEaV4h2raHqvgNU5j1JaEFv8sXebNR3sVq1ZqmPMVmcUkafrtN3LyoxTsXR0tb5CdvcaTB3gRMdTXF+dcig7kwhKTQcWnirqlL+EHEBLSuGyBTix4jsowV5CTYHKrelz9JCkxpKez8L3G1+yfsTsPUE17z3PhYQitV1L1KVfO1JPnwxqN3uaP04b2vn9zUj2z63mS1T3DkaL/snBjfQicuTfFvjSXhyNvSXlzZ+xaSRWqRs0m9QOGoGX40Y4+RLtddmintVjJe+1RmvetEG2f/+e+3n+zZcJzEGDHIzoctF6uU94EYVtf8cD+l7Y84FgEVgw4nWmWuVXMniO8ImHZpz3TQrpapH28cK2BMqKmpI8XbKdHa3XNcnC/8wdgjnA2MLp6hpoOJhfwtgdAWFa+FKAWEjoibUk3JIlvvfXQO43NEuAcAUncTCuUTk50qGyUfoJxyogdCEiqj0yO37149pyt+UxEa38+G/4k/lYahkPAtHA+NHHVQ6o24zOzPY6NgG/wL1NMInUuZJPCOvZTkhTFtZHH2VKP0BGPHBb/z0pCUm1kOMmZigyc3TqjCG43HSs3iih43z8nHQOlDqToe/Zxr8KRNyxdz0UfUDI2apOCuns9ylj2yU4ygi/XI1tMhe06Kk3TspAXMo9AZec1OR1q2IVKwHyrG6TVlaHjvKJBPo9JgwrXW1yEm2JHOs1Z2XxFhk9UAENAYnxmeMWt5dhMOVcbLHyCeihwuzDI2aWEEsd8ka16c+r9o5RxjK1xY1EEKFh/dvFI+/TEessWOI2FZ56pfgHiL85WGYL5Hqji2uo8QNDYGRt3E4ISQXFPFAwvEjhz0jvxWC2wWgmacmIvjrSeYkEr/7I2BF5xJkB3tjF4BS4xsg9J21YkXzvGJNKW/uwXnPPLNsyQpbfN+0ePjeahkJSFRGegArwgdBvbNhtczJngk3P7utWvNBV2TQk5yFXpAE/l5L0MPpqgtdPsy5GvVqt4JCxod0bI7wDpxmLpiY0jNHDTqPSxGmIfFfz43aT6q6S+kCxWv+nOoLX65mcLT+hJ1Zlu+mZHs6jh1SpDPg5NM7d+o5A9Up6qHWZ/suYqu5UVVjDtVG1csNV7quBA2J2fTTJuNd5l7IU+kRmMQmXIedaM1UDIKlFJJYWNSK/iCIUVUKToqmZJYbm3ttQaFJRJap+uy+R2aalDknpWMU3YUGXIf0R6VYNzNBQQEeniCEgxCM171EQDUiXWpRUk58RWMwTEPqxJSICF9jcQR7DbTSwB4OzKNaAi5qSEfFzokHNcNy1ASMVw0plBRQTNocHvl4gfdrHWmViNk/BIPsF2fEZae8uyqHgBoPl68/TNbbeZc5SdDduaFDiT4sGdKaMw8lhO6hQQdrXg1ylprfWxbDbiwkTQxvhXLvfoZ09n0umlCWq4zyjnWLx3UfeUBfhW+g0Gqppf4QCUdVCs/McPkLs7ruqk65mzavgyfVIR3SNBzu/9/Ne1X6zQvJFEQb4SzX" };
 
@@ -234,45 +279,87 @@ function read(){
   const peso = /^\d{2,3}(\.\d{1,2})?$/.test(pesoTxt) ? parseFloat(pesoTxt) : NaN;
   const doc = $("doc").value.replace(/[.\s-]/g, "");
   const ciudad = clean($("ciudad").value);
+  const fono = v => v.replace(/[^\d]/g, "");
+  const tel = fono($("tel").value), telent = fono($("telent").value), ent = clean($("ent").value);
+  const efectivo = $("efectivo").checked, archivo = $("soporte").files[0] || null;
   const bad = {
+    tel: !/^\d{7,12}$/.test(tel),
+    ent: ent.length < 3,
+    telent: !/^\d{7,12}$/.test(telent),
+    soporte: !efectivo && !archivo,
     nombre: nombre.length < 5 || !nombre.includes(" "),
     peso: !(peso >= 20 && peso <= 200),
     doc: !/^\d{5,12}$/.test(doc),
     ciudad: ciudad.length < 3,
     acepto: !$("acepto").checked
   };
-  return { data: { nombre, peso, documento: doc, ciudad }, bad };
+  return { data: { nombre, peso, documento: doc, ciudad, telefono: tel, entrenador: ent, telEntrenador: telent, pago: efectivo ? "efectivo" : "soporte" }, archivo: efectivo ? null : archivo, bad };
 }
+const CAMPOS = ["nombre","peso","doc","ciudad","tel","ent","telent","soporte","acepto"];
 function paint(bad){
   let first = null;
-  for (const k of ["nombre","peso","doc","ciudad","acepto"]){
+  for (const k of CAMPOS){
     $("e-"+k).classList.toggle("on", !!bad[k]);
     const el = $(k); el.classList.toggle("bad", !!bad[k]); el.setAttribute("aria-invalid", bad[k] ? "true" : "false");
     if (bad[k] && !first) first = el;
   }
   return first;
 }
-["nombre","peso","doc","ciudad","acepto"].forEach(k => $(k).addEventListener("input", () => { if ($("e-"+k).classList.contains("on")) paint(read().bad); }));
+CAMPOS.forEach(k => $(k).addEventListener("input", () => { if ($("e-"+k).classList.contains("on")) paint(read().bad); }));
+$("efectivo").addEventListener("change", () => {
+  const ef = $("efectivo").checked; $("soporte").disabled = ef; if (ef) $("soporte").value = "";
+  if ($("e-soporte").classList.contains("on")) paint(read().bad);
+});
+
+/* ---------- imagen del soporte: se reduce antes de cifrarla ---------- */
+async function prepararImagen(file){
+  let img;
+  try { img = await createImageBitmap(file); }
+  catch (e) {
+    img = await new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = no; i.src = URL.createObjectURL(file); });
+  }
+  const w0 = img.width || img.naturalWidth, h0 = img.height || img.naturalHeight, k = Math.min(1, 1500 / Math.max(w0, h0));
+  const cv = document.createElement("canvas"); cv.width = Math.round(w0 * k); cv.height = Math.round(h0 * k);
+  const cx = cv.getContext("2d"); cx.fillStyle = "#fff"; cx.fillRect(0, 0, cv.width, cv.height); cx.drawImage(img, 0, 0, cv.width, cv.height);
+  const blob = await new Promise(ok => cv.toBlob(ok, "image/jpeg", 0.72));
+  if (!blob) throw new Error("imagen");
+  return blob.arrayBuffer();
+}
 
 /* ---------- cifrado y envío ---------- */
-async function cifrar(obj){
+async function cifrar(obj, imagen){
   const pub = await crypto.subtle.importKey("spki", unb64(LLAVE_PUBLICA), { name: "RSA-OAEP", hash: "SHA-256" }, false, ["encrypt"]);
   const aes = await crypto.subtle.generateKey({ name: "AES-GCM", length: 256 }, true, ["encrypt"]);
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const c = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, aes, new TextEncoder().encode(JSON.stringify(obj)));
   const k = await crypto.subtle.encrypt({ name: "RSA-OAEP" }, pub, await crypto.subtle.exportKey("raw", aes));
   const id = b64(crypto.getRandomValues(new Uint8Array(12))).replace(/[+/=]/g, "x");
-  return { v: 1, id, k: b64(k), iv: b64(iv), c: b64(c) };
+  const sobre = { v: 1, id, k: b64(k), iv: b64(iv), c: b64(c) };
+  if (imagen){ // el soporte viaja aparte, cifrado con la misma llave de esta inscripción
+    const iv2 = crypto.getRandomValues(new Uint8Array(12));
+    const ci = await crypto.subtle.encrypt({ name: "AES-GCM", iv: iv2 }, aes, imagen);
+    const r = await fetch(ENVIO, { method: "POST", body: new Blob([ci]) });
+    if (!r.ok) throw new Error("soporte " + r.status);
+    const url = ((await r.json()).attachment || {}).url || "";
+    if (!url.startsWith("https://ntfy.sh/file/")) throw new Error("soporte sin enlace");
+    sobre.iv2 = b64(iv2); sobre.f = url;
+  }
+  return sobre;
 }
 $("f").addEventListener("submit", async ev => {
   ev.preventDefault();
-  const { data, bad } = read();
+  const { data, archivo, bad } = read();
   const first = paint(bad);
   $("formerr").classList.remove("on");
   if (first){ first.focus(); return; }
   const btn = $("send"); btn.disabled = true; btn.textContent = "Enviando…";
   try {
-    const sobre = await cifrar({ ...data, creado: Date.now() });
+    let imagen = null;
+    if (archivo){
+      try { imagen = await prepararImagen(archivo); }
+      catch (e) { $("e-soporte").textContent = "No se pudo leer esa imagen. Prueba con una foto o un pantallazo (JPG o PNG)."; $("e-soporte").classList.add("on"); $("soporte").focus(); return; }
+    }
+    const sobre = await cifrar({ ...data, creado: Date.now() }, imagen);
     const res = await fetch(ENVIO, { method: "POST", body: JSON.stringify(sobre) });
     if (!res.ok) throw new Error("envio " + res.status);
     showOk(data);
@@ -284,13 +371,13 @@ $("f").addEventListener("submit", async ev => {
 function showOk(d){
   $("f").style.display = "none"; $("ok").classList.add("on");
   const dl = $("resumen"); dl.textContent = "";
-  [["Nombre", d.nombre], ["Peso", String(d.peso).replace(".", ",") + " kg"], ["Documento", d.documento], ["Ciudad", d.ciudad]].forEach(([k, v]) => {
+  [["Nombre", d.nombre], ["Peso", String(d.peso).replace(".", ",") + " kg"], ["Documento", d.documento], ["Ciudad", d.ciudad], ["Teléfono", d.telefono], ["Entrenador", d.entrenador], ["Tel. entrenador", d.telEntrenador], ["Pago", d.pago === "efectivo" ? "En efectivo" : "Soporte adjunto"]].forEach(([k, v]) => {
     const row = document.createElement("div"), dt = document.createElement("dt"), dd = document.createElement("dd");
     dt.className = "cond"; dt.textContent = k; dd.textContent = v; row.append(dt, dd); dl.append(row);
   });
   $("ok").scrollIntoView({ block: "start", behavior: "smooth" });
 }
-$("otra").addEventListener("click", () => { $("f").reset(); $("f").style.display = ""; $("ok").classList.remove("on"); $("nombre").focus(); });
+$("otra").addEventListener("click", () => { $("f").reset(); $("soporte").disabled = false; $("f").style.display = ""; $("ok").classList.remove("on"); $("nombre").focus(); });
 
 /* ---------- panel de la Liga (#panel) ---------- */
 let rows = [], privada = null, timer = null;
@@ -308,9 +395,14 @@ async function descifrar(s){
   const aes = await crypto.subtle.importKey("raw", raw, "AES-GCM", false, ["decrypt"]);
   const d = JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({ name: "AES-GCM", iv: unb64(s.iv) }, aes, unb64(s.c))));
   if (typeof d.nombre !== "string" || typeof d.documento !== "string" || typeof d.ciudad !== "string" || typeof d.peso !== "number") throw new Error("forma");
-  return { id: s.id, nombre: d.nombre.slice(0, 80), peso: d.peso, documento: d.documento.slice(0, 15), ciudad: d.ciudad.slice(0, 60), creado: s.t ? s.t * 1000 : (d.creado || 0) };
+  const t = (v, n) => typeof v === "string" ? v.slice(0, n) : "";
+  const tieneSoporte = typeof s.iv2 === "string" && (s.fs === 1 || typeof s.f === "string");
+  return { id: s.id, nombre: d.nombre.slice(0, 80), peso: d.peso, documento: d.documento.slice(0, 15), ciudad: d.ciudad.slice(0, 60),
+    telefono: t(d.telefono, 16), entrenador: t(d.entrenador, 80), telEntrenador: t(d.telEntrenador, 16), pago: d.pago === "efectivo" ? "efectivo" : "soporte",
+    soporte: tieneSoporte ? { llave: raw, iv2: s.iv2, guardado: s.fs === 1, url: typeof s.f === "string" && s.f.startsWith("https://ntfy.sh/file/") ? s.f : null } : null,
+    creado: s.t ? s.t * 1000 : (d.creado || 0) };
 }
-const esSobre = s => s && s.v === 1 && typeof s.id === "string" && typeof s.k === "string" && typeof s.iv === "string" && typeof s.c === "string";
+const esSobre = s => s && s.v === 1 && typeof s.id === "string" && /^[A-Za-z0-9]{8,40}$/.test(s.id) && typeof s.k === "string" && typeof s.iv === "string" && typeof s.c === "string";
 async function traerSobres(){
   const sobres = new Map(); let fallos = 0;
   try { // lo ya guardado
@@ -328,7 +420,7 @@ async function traerSobres(){
 const vistos = new Map();
 async function cargar(){
   const { sobres, fallos } = await traerSobres();
-  for (const s of sobres){ if (!vistos.has(s.id)) { try { vistos.set(s.id, await descifrar(s)); } catch (e) { vistos.set(s.id, null); } } }
+  for (const s of sobres){ if (!vistos.has(s.id) || (s.fs === 1 && vistos.get(s.id) && vistos.get(s.id).soporte && !vistos.get(s.id).soporte.guardado)) { try { vistos.set(s.id, await descifrar(s)); } catch (e) { vistos.set(s.id, null); } } }
   const fuera = ocultos();
   rows = [...vistos.values()].filter(r => r && !fuera.includes(r.id)).sort((a, b) => a.creado - b.creado);
   const cuenta = {}; rows.forEach(r => cuenta[r.documento] = (cuenta[r.documento] || 0) + 1);
@@ -342,7 +434,12 @@ function render(){
   const tb = $("rows"); tb.textContent = "";
   list.forEach((r, i) => {
     const tr = document.createElement("tr");
-    [[i + 1, "n"], [r.nombre], [String(r.peso).replace(".", ","), "n"], [r.documento + (r.repetido ? "  · repetido" : ""), "n" + (r.repetido ? " rep" : "")], [r.ciudad], [fmtDate(r.creado), "n"]].forEach(([v, c]) => { const td = document.createElement("td"); if (c) td.className = c; td.textContent = v; tr.append(td); });
+    const celda = (v, c) => { const td = document.createElement("td"); if (c) td.className = c; td.textContent = v; tr.append(td); return td; };
+    celda(i + 1, "n"); celda(r.nombre); celda(String(r.peso).replace(".", ","), "n"); celda(r.documento + (r.repetido ? "  · repetido" : ""), "n" + (r.repetido ? " rep" : "")); celda(r.ciudad);
+    celda(r.telefono, "n"); celda(r.entrenador); celda(r.telEntrenador, "n");
+    const pago = celda(r.pago === "efectivo" ? "Efectivo" : (r.soporte ? "" : "Sin soporte"), "n");
+    if (r.pago !== "efectivo" && r.soporte){ const v = document.createElement("button"); v.className = "ver"; v.type = "button"; v.textContent = "Ver soporte"; v.setAttribute("aria-label", "Ver soporte de pago de " + r.nombre); v.addEventListener("click", () => verSoporte(r, v)); pago.append(v); }
+    celda(fmtDate(r.creado), "n");
     const td = document.createElement("td"), b = document.createElement("button");
     b.className = "del"; b.type = "button"; b.textContent = "Quitar"; b.setAttribute("aria-label", "Quitar de la lista a " + r.nombre);
     b.addEventListener("click", () => quitar(r, b)); td.append(b); tr.append(td); tb.append(tr);
@@ -351,16 +448,35 @@ function render(){
   const rep = rows.filter(r => r.repetido).length;
   $("count").textContent = rows.length + (rows.length === 1 ? " inscrito" : " inscritos") + (rep ? " · " + rep + " con documento repetido" : "") + (q ? " · " + list.length + " en la búsqueda" : "");
 }
+async function verSoporte(r, b){
+  const antes = b.textContent; b.disabled = true; b.textContent = "Abriendo…";
+  try {
+    let buf = null;
+    for (const u of [BASE + "soportes/" + r.id + ".bin?x=" + Date.now(), r.soporte.url]){
+      if (!u || buf) continue;
+      try { const q = await fetch(u, { cache: "no-store" }); if (q.ok) buf = await q.arrayBuffer(); } catch (e) {}
+    }
+    if (!buf) throw new Error("no está");
+    const aes = await crypto.subtle.importKey("raw", r.soporte.llave, "AES-GCM", false, ["decrypt"]);
+    const img = await crypto.subtle.decrypt({ name: "AES-GCM", iv: unb64(r.soporte.iv2) }, aes, buf);
+    const url = URL.createObjectURL(new Blob([img], { type: "image/jpeg" }));
+    $("dlgimg").src = url; $("dlgdown").href = url; $("dlgdown").download = "soporte_" + r.documento + ".jpg";
+    $("dlg").showModal(); b.textContent = antes;
+  } catch (e) { b.textContent = "No disponible"; setTimeout(() => { b.textContent = antes; }, 3000); }
+  finally { b.disabled = false; }
+}
+$("dlgclose").addEventListener("click", () => $("dlg").close());
 function quitar(r, b){
   if (b.dataset.sure !== "1"){ b.dataset.sure = "1"; b.textContent = "¿Seguro? Toca otra vez"; setTimeout(() => { b.dataset.sure = ""; b.textContent = "Quitar"; }, 3500); return; }
   const o = ocultos(); o.push(r.id); try { localStorage.setItem("insc_ocultos", JSON.stringify(o)); } catch (e) {}
   rows = rows.filter(x => x.id !== r.id); render();
 }
 $("q").addEventListener("input", render);
-const exportRows = () => rows.map((r, i) => ({ "#": i + 1, "Nombre y apellido": r.nombre, "Peso (kg)": r.peso, "Documento": r.documento, "Ciudad": r.ciudad, "Fecha de inscripción": fmtDate(r.creado) }));
+const CABEZA = ["#", "Nombre y apellido", "Peso (kg)", "Documento", "Ciudad", "Teléfono del boxeador", "Entrenador", "Teléfono del entrenador", "Pago", "Fecha de inscripción"];
+const exportRows = () => rows.map((r, i) => ({ "#": i + 1, "Nombre y apellido": r.nombre, "Peso (kg)": r.peso, "Documento": r.documento, "Ciudad": r.ciudad, "Teléfono del boxeador": r.telefono, "Entrenador": r.entrenador, "Teléfono del entrenador": r.telEntrenador, "Pago": r.pago === "efectivo" ? "Efectivo" : (r.soporte ? "Soporte adjunto" : "Sin soporte"), "Fecha de inscripción": fmtDate(r.creado) }));
 function download(blob, name){ const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); }
 $("csv").addEventListener("click", () => {
-  const data = exportRows(); const head = ["#", "Nombre y apellido", "Peso (kg)", "Documento", "Ciudad", "Fecha de inscripción"];
+  const data = exportRows(); const head = CABEZA;
   const esc = v => { let s = String(v).replace(/"/g, '""'); if (/^[=+\-@]/.test(s)) s = "'" + s; return '"' + s + '"'; };
   const csv = "﻿" + [head.map(esc).join(";"), ...data.map(r => head.map(h => esc(h === "Peso (kg)" ? String(r[h]).replace(".", ",") : r[h])).join(";"))].join("\r\n");
   download(new Blob([csv], { type: "text/csv;charset=utf-8" }), "inscritos_campeonato_boxeo_tocaima.csv");
@@ -370,7 +486,7 @@ $("xlsx").addEventListener("click", async () => {
   try {
     const XLSX = await import("https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm");
     const ws = XLSX.utils.json_to_sheet(exportRows());
-    ws["!cols"] = [{ wch: 5 }, { wch: 34 }, { wch: 10 }, { wch: 16 }, { wch: 22 }, { wch: 20 }];
+    ws["!cols"] = [{ wch: 5 }, { wch: 34 }, { wch: 10 }, { wch: 16 }, { wch: 22 }, { wch: 20 }, { wch: 30 }, { wch: 22 }, { wch: 16 }, { wch: 20 }];
     const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Inscritos");
     download(new Blob([XLSX.write(wb, { type: "array", bookType: "xlsx" })], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), "inscritos_campeonato_boxeo_tocaima.xlsx");
   } catch (e) { $("csv").click(); } finally { b.disabled = false; }
