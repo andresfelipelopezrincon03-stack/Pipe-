@@ -22,7 +22,7 @@ jobs:
       - name: Preparar sitio
         run: |
           mkdir _site
-          cp -r index.html manifest.webmanifest sw.js assets icons _site/
+          cp -r index.html manifest.webmanifest sw.js assets icons inscripcion _site/
           touch _site/.nojekyll
       - name: Publicar en la rama gh-pages
         uses: peaceiris/actions-gh-pages@v4
