@@ -61,8 +61,13 @@ dialog img{display:block;max-width:100%;max-height:70vh;margin:0 auto 12px}
 label.l{display:block;font-weight:700;font-size:17px;letter-spacing:.09em;text-transform:uppercase;margin-bottom:6px;color:var(--navy)}
 .hint{display:block;font-size:14.5px;color:var(--muted);margin-top:5px}
 input[type=text],input[type=number],input[type=search]{width:100%;height:54px;padding:0 14px;font:inherit;font-size:18px;color:var(--ink);background:#fff;border:2px solid #8b96ad;border-radius:5px;outline:none;appearance:none;-moz-appearance:textfield}
-input:focus-visible{border-color:var(--blue);box-shadow:0 0 0 3px rgba(28,127,214,.3)}
-input.bad{border-color:var(--err)}
+input:focus-visible,select:focus-visible{border-color:var(--blue);box-shadow:0 0 0 3px rgba(28,127,214,.3)}
+input.bad,select.bad{border-color:var(--err)}
+select{width:100%;height:54px;padding:0 44px 0 14px;font:inherit;font-size:18px;color:var(--ink);background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 10'%3E%3Cpath d='M1.5 1.5 8 8l6.5-6.5' fill='none' stroke='%23081430' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 15px center/15px 10px;border:2px solid #8b96ad;border-radius:5px;outline:none;appearance:none;-webkit-appearance:none;cursor:pointer}
+select:invalid{color:var(--muted)}
+select option{color:var(--ink)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+@media (max-width:480px){.two{grid-template-columns:1fr}}
 .kg{position:relative}.kg input{padding-right:52px}.kg span{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-weight:700;color:var(--muted);font-size:18px}
 .err{display:none;color:var(--err);font-size:15px;font-weight:600;margin-top:6px}
 .err.on{display:block}
@@ -99,7 +104,7 @@ button{font:inherit;cursor:pointer}
 .tools .btn2{margin-top:0}
 .count{font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:17px;color:var(--muted);margin-bottom:8px}
 .tw{overflow-x:auto;border:2px solid var(--line);border-radius:5px;background:#fff}
-table{border-collapse:collapse;width:100%;min-width:1060px;font-size:15.5px}
+table{border-collapse:collapse;width:100%;min-width:1420px;font-size:15.5px}
 th{background:var(--navy);color:#fff;text-align:left;padding:10px 12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:15px;white-space:nowrap}
 td{padding:10px 12px;border-top:1px solid var(--line);vertical-align:top}
 td.n{font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -146,17 +151,52 @@ a{color:var(--blue)}footer a{color:var(--yellow)}
       </div>
 
       <div class="field">
+        <label class="l cond" for="tipodoc">Tipo de documento</label>
+        <select id="tipodoc" name="tipodoc" required>
+          <option value="" disabled selected hidden>Selecciona</option>
+          <option value="CC">CC · Cédula de ciudadanía</option>
+          <option value="TI">TI · Tarjeta de identidad</option>
+          <option value="RC">RC · Registro civil</option>
+          <option value="Extranjería">Documento de extranjería</option>
+        </select>
+        <div class="err" id="e-tipodoc">Selecciona el tipo de documento.</div>
+      </div>
+
+      <div class="field">
+        <label class="l cond" for="doc">Número de documento</label>
+        <input type="text" id="doc" name="doc" inputmode="numeric" autocomplete="off" maxlength="15" required aria-describedby="h-doc">
+        <span class="hint" id="h-doc">Solo números, sin puntos.</span>
+        <div class="err" id="e-doc">Escribe el número de documento, solo números (entre 5 y 12 dígitos).</div>
+      </div>
+
+      <div class="two">
+        <div class="field">
+          <label class="l cond" for="sexo">Sexo</label>
+          <select id="sexo" name="sexo" required>
+            <option value="" disabled selected hidden>Selecciona</option>
+            <option value="Masculino">Masculino</option>
+            <option value="Femenino">Femenino</option>
+          </select>
+          <div class="err" id="e-sexo">Selecciona masculino o femenino.</div>
+        </div>
+        <div class="field">
+          <label class="l cond" for="categoria">Categoría</label>
+          <select id="categoria" name="categoria" required>
+            <option value="" disabled selected hidden>Selecciona</option>
+            <option value="Infantil">Infantil</option>
+            <option value="Sub 17">Sub 17</option>
+            <option value="Sub 19">Sub 19</option>
+            <option value="Élite">Élite</option>
+          </select>
+          <div class="err" id="e-categoria">Selecciona la categoría.</div>
+        </div>
+      </div>
+
+      <div class="field">
         <label class="l cond" for="peso">Peso</label>
         <div class="kg"><input type="text" id="peso" name="peso" inputmode="decimal" autocomplete="off" maxlength="6" required aria-describedby="h-peso"><span class="cond">kg</span></div>
         <span class="hint" id="h-peso">En kilogramos. Ejemplo: 63,5</span>
         <div class="err" id="e-peso">Escribe el peso en kilogramos, entre 20 y 200.</div>
-      </div>
-
-      <div class="field">
-        <label class="l cond" for="doc">Documento de identidad</label>
-        <input type="text" id="doc" name="doc" inputmode="numeric" autocomplete="off" maxlength="15" required aria-describedby="h-doc">
-        <span class="hint" id="h-doc">Solo números, sin puntos. Cédula o tarjeta de identidad.</span>
-        <div class="err" id="e-doc">Escribe el número de documento, solo números (entre 5 y 12 dígitos).</div>
       </div>
 
       <div class="field">
@@ -226,14 +266,14 @@ a{color:var(--blue)}footer a{color:var(--yellow)}
     </div>
     <div id="panel" style="display:none">
       <div class="tools">
-        <input type="search" id="q" placeholder="Buscar por nombre, documento o ciudad" aria-label="Buscar inscritos">
+        <input type="search" id="q" placeholder="Buscar por nombre, documento, ciudad o categoría" aria-label="Buscar inscritos">
         <button class="btn2 cond" id="recargar" type="button">Actualizar</button>
         <button class="btn2 cond" id="xlsx" type="button">Descargar Excel</button>
         <button class="btn2 cond" id="csv" type="button">Descargar CSV</button>
       </div>
       <div class="count cond" id="count"></div>
       <div class="tw"><table>
-        <thead><tr><th>#</th><th>Nombre y apellido</th><th>Peso (kg)</th><th>Documento</th><th>Ciudad</th><th>Tel. boxeador</th><th>Entrenador</th><th>Tel. entrenador</th><th>Pago</th><th>Fecha</th><th></th></tr></thead>
+        <thead><tr><th>#</th><th>Nombre y apellido</th><th>Tipo doc.</th><th>Documento</th><th>Sexo</th><th>Categoría</th><th>Peso (kg)</th><th>Ciudad</th><th>Tel. boxeador</th><th>Entrenador</th><th>Tel. entrenador</th><th>Pago</th><th>Fecha</th><th></th></tr></thead>
         <tbody id="rows"></tbody>
       </table><div class="empty" id="empty" style="display:none">Todavía no hay inscritos.</div></div>
     </div>
@@ -273,11 +313,14 @@ const isAdminView = () => location.hash === "#panel";
 
 /* ---------- validación ---------- */
 const clean = s => s.replace(/\s+/g, " ").trim();
+const TIPOS_DOC = ["CC", "TI", "RC", "Extranjería"], SEXOS = ["Masculino", "Femenino"], CATEGORIAS = ["Infantil", "Sub 17", "Sub 19", "Élite"];
 function read(){
   const nombre = clean($("nombre").value);
   const pesoTxt = $("peso").value.trim().replace(",", ".");
   const peso = /^\d{2,3}(\.\d{1,2})?$/.test(pesoTxt) ? parseFloat(pesoTxt) : NaN;
-  const doc = $("doc").value.replace(/[.\s-]/g, "");
+  const tipoDoc = $("tipodoc").value, sexo = $("sexo").value, categoria = $("categoria").value;
+  const extranjero = tipoDoc === "Extranjería";
+  const doc = $("doc").value.replace(/[.\s-]/g, "").toUpperCase();
   const ciudad = clean($("ciudad").value);
   const fono = v => v.replace(/[^\d]/g, "");
   const tel = fono($("tel").value), telent = fono($("telent").value), ent = clean($("ent").value);
@@ -289,13 +332,16 @@ function read(){
     soporte: !efectivo && !archivo,
     nombre: nombre.length < 5 || !nombre.includes(" "),
     peso: !(peso >= 20 && peso <= 200),
-    doc: !/^\d{5,12}$/.test(doc),
+    tipodoc: !TIPOS_DOC.includes(tipoDoc),
+    doc: !(extranjero ? /^[A-Z0-9]{5,15}$/ : /^\d{5,12}$/).test(doc),
+    sexo: !SEXOS.includes(sexo),
+    categoria: !CATEGORIAS.includes(categoria),
     ciudad: ciudad.length < 3,
     acepto: !$("acepto").checked
   };
-  return { data: { nombre, peso, documento: doc, ciudad, telefono: tel, entrenador: ent, telEntrenador: telent, pago: efectivo ? "efectivo" : "soporte" }, archivo: efectivo ? null : archivo, bad };
+  return { data: { nombre, tipoDocumento: tipoDoc, documento: doc, sexo, categoria, peso, ciudad, telefono: tel, entrenador: ent, telEntrenador: telent, pago: efectivo ? "efectivo" : "soporte" }, archivo: efectivo ? null : archivo, bad };
 }
-const CAMPOS = ["nombre","peso","doc","ciudad","tel","ent","telent","soporte","acepto"];
+const CAMPOS = ["nombre","tipodoc","doc","sexo","categoria","peso","ciudad","tel","ent","telent","soporte","acepto"];
 function paint(bad){
   let first = null;
   for (const k of CAMPOS){
@@ -306,6 +352,13 @@ function paint(bad){
   return first;
 }
 CAMPOS.forEach(k => $(k).addEventListener("input", () => { if ($("e-"+k).classList.contains("on")) paint(read().bad); }));
+function ajustarDoc(){ // el documento de extranjería puede llevar letras
+  const ex = $("tipodoc").value === "Extranjería";
+  $("doc").inputMode = ex ? "text" : "numeric";
+  $("h-doc").textContent = ex ? "Letras y números, sin puntos ni espacios." : "Solo números, sin puntos.";
+  $("e-doc").textContent = ex ? "Escribe el número del documento (entre 5 y 15 letras o números)." : "Escribe el número de documento, solo números (entre 5 y 12 dígitos).";
+}
+$("tipodoc").addEventListener("change", () => { ajustarDoc(); if ($("e-doc").classList.contains("on")) paint(read().bad); });
 $("efectivo").addEventListener("change", () => {
   const ef = $("efectivo").checked; $("soporte").disabled = ef; if (ef) $("soporte").value = "";
   if ($("e-soporte").classList.contains("on")) paint(read().bad);
@@ -371,13 +424,13 @@ $("f").addEventListener("submit", async ev => {
 function showOk(d){
   $("f").style.display = "none"; $("ok").classList.add("on");
   const dl = $("resumen"); dl.textContent = "";
-  [["Nombre", d.nombre], ["Peso", String(d.peso).replace(".", ",") + " kg"], ["Documento", d.documento], ["Ciudad", d.ciudad], ["Teléfono", d.telefono], ["Entrenador", d.entrenador], ["Tel. entrenador", d.telEntrenador], ["Pago", d.pago === "efectivo" ? "En efectivo" : "Soporte adjunto"]].forEach(([k, v]) => {
+  [["Nombre", d.nombre], ["Documento", d.tipoDocumento + " " + d.documento], ["Sexo", d.sexo], ["Categoría", d.categoria], ["Peso", String(d.peso).replace(".", ",") + " kg"], ["Ciudad", d.ciudad], ["Teléfono", d.telefono], ["Entrenador", d.entrenador], ["Tel. entrenador", d.telEntrenador], ["Pago", d.pago === "efectivo" ? "En efectivo" : "Soporte adjunto"]].forEach(([k, v]) => {
     const row = document.createElement("div"), dt = document.createElement("dt"), dd = document.createElement("dd");
     dt.className = "cond"; dt.textContent = k; dd.textContent = v; row.append(dt, dd); dl.append(row);
   });
   $("ok").scrollIntoView({ block: "start", behavior: "smooth" });
 }
-$("otra").addEventListener("click", () => { $("f").reset(); $("soporte").disabled = false; $("f").style.display = ""; $("ok").classList.remove("on"); $("nombre").focus(); });
+$("otra").addEventListener("click", () => { $("f").reset(); $("soporte").disabled = false; ajustarDoc(); $("f").style.display = ""; $("ok").classList.remove("on"); $("nombre").focus(); });
 
 /* ---------- panel de la Liga (#panel) ---------- */
 let rows = [], privada = null, timer = null;
@@ -398,6 +451,7 @@ async function descifrar(s){
   const t = (v, n) => typeof v === "string" ? v.slice(0, n) : "";
   const tieneSoporte = typeof s.iv2 === "string" && (s.fs === 1 || typeof s.f === "string");
   return { id: s.id, nombre: d.nombre.slice(0, 80), peso: d.peso, documento: d.documento.slice(0, 15), ciudad: d.ciudad.slice(0, 60),
+    tipoDocumento: t(d.tipoDocumento, 20), sexo: t(d.sexo, 12), categoria: t(d.categoria, 12),
     telefono: t(d.telefono, 16), entrenador: t(d.entrenador, 80), telEntrenador: t(d.telEntrenador, 16), pago: d.pago === "efectivo" ? "efectivo" : "soporte",
     soporte: tieneSoporte ? { llave: raw, iv2: s.iv2, guardado: s.fs === 1, url: typeof s.f === "string" && s.f.startsWith("https://ntfy.sh/file/") ? s.f : null } : null,
     creado: s.t ? s.t * 1000 : (d.creado || 0) };
@@ -430,12 +484,12 @@ async function cargar(){
 }
 function render(){
   const q = $("q").value.trim().toLowerCase();
-  const list = rows.filter(r => !q || (r.nombre + " " + r.documento + " " + r.ciudad).toLowerCase().includes(q));
+  const list = rows.filter(r => !q || (r.nombre + " " + r.documento + " " + r.ciudad + " " + r.categoria + " " + r.sexo).toLowerCase().includes(q));
   const tb = $("rows"); tb.textContent = "";
   list.forEach((r, i) => {
     const tr = document.createElement("tr");
     const celda = (v, c) => { const td = document.createElement("td"); if (c) td.className = c; td.textContent = v; tr.append(td); return td; };
-    celda(i + 1, "n"); celda(r.nombre); celda(String(r.peso).replace(".", ","), "n"); celda(r.documento + (r.repetido ? "  · repetido" : ""), "n" + (r.repetido ? " rep" : "")); celda(r.ciudad);
+    celda(i + 1, "n"); celda(r.nombre); celda(r.tipoDocumento, "n"); celda(r.documento + (r.repetido ? "  · repetido" : ""), "n" + (r.repetido ? " rep" : "")); celda(r.sexo, "n"); celda(r.categoria, "n"); celda(String(r.peso).replace(".", ","), "n"); celda(r.ciudad);
     celda(r.telefono, "n"); celda(r.entrenador); celda(r.telEntrenador, "n");
     const pago = celda(r.pago === "efectivo" ? "Efectivo" : (r.soporte ? "" : "Sin soporte"), "n");
     if (r.pago !== "efectivo" && r.soporte){ const v = document.createElement("button"); v.className = "ver"; v.type = "button"; v.textContent = "Ver soporte"; v.setAttribute("aria-label", "Ver soporte de pago de " + r.nombre); v.addEventListener("click", () => verSoporte(r, v)); pago.append(v); }
@@ -472,8 +526,8 @@ function quitar(r, b){
   rows = rows.filter(x => x.id !== r.id); render();
 }
 $("q").addEventListener("input", render);
-const CABEZA = ["#", "Nombre y apellido", "Peso (kg)", "Documento", "Ciudad", "Teléfono del boxeador", "Entrenador", "Teléfono del entrenador", "Pago", "Fecha de inscripción"];
-const exportRows = () => rows.map((r, i) => ({ "#": i + 1, "Nombre y apellido": r.nombre, "Peso (kg)": r.peso, "Documento": r.documento, "Ciudad": r.ciudad, "Teléfono del boxeador": r.telefono, "Entrenador": r.entrenador, "Teléfono del entrenador": r.telEntrenador, "Pago": r.pago === "efectivo" ? "Efectivo" : (r.soporte ? "Soporte adjunto" : "Sin soporte"), "Fecha de inscripción": fmtDate(r.creado) }));
+const CABEZA = ["#", "Nombre y apellido", "Tipo de documento", "Documento", "Sexo", "Categoría", "Peso (kg)", "Ciudad", "Teléfono del boxeador", "Entrenador", "Teléfono del entrenador", "Pago", "Fecha de inscripción"];
+const exportRows = () => rows.map((r, i) => ({ "#": i + 1, "Nombre y apellido": r.nombre, "Tipo de documento": r.tipoDocumento, "Documento": r.documento, "Sexo": r.sexo, "Categoría": r.categoria, "Peso (kg)": r.peso, "Ciudad": r.ciudad, "Teléfono del boxeador": r.telefono, "Entrenador": r.entrenador, "Teléfono del entrenador": r.telEntrenador, "Pago": r.pago === "efectivo" ? "Efectivo" : (r.soporte ? "Soporte adjunto" : "Sin soporte"), "Fecha de inscripción": fmtDate(r.creado) }));
 function download(blob, name){ const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); }
 $("csv").addEventListener("click", () => {
   const data = exportRows(); const head = CABEZA;
@@ -486,7 +540,7 @@ $("xlsx").addEventListener("click", async () => {
   try {
     const XLSX = await import("https://cdn.jsdelivr.net/npm/xlsx@0.18.5/+esm");
     const ws = XLSX.utils.json_to_sheet(exportRows());
-    ws["!cols"] = [{ wch: 5 }, { wch: 34 }, { wch: 10 }, { wch: 16 }, { wch: 22 }, { wch: 20 }, { wch: 30 }, { wch: 22 }, { wch: 16 }, { wch: 20 }];
+    ws["!cols"] = [{ wch: 5 }, { wch: 34 }, { wch: 18 }, { wch: 16 }, { wch: 12 }, { wch: 12 }, { wch: 10 }, { wch: 22 }, { wch: 20 }, { wch: 30 }, { wch: 22 }, { wch: 16 }, { wch: 20 }];
     const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Inscritos");
     download(new Blob([XLSX.write(wb, { type: "array", bookType: "xlsx" })], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), "inscritos_campeonato_boxeo_tocaima.xlsx");
   } catch (e) { $("csv").click(); } finally { b.disabled = false; }
